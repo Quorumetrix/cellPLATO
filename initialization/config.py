@@ -6,16 +6,16 @@ Experiment-specific constants
 
 
 INPUT_FMT = 'btrack' # 'usiigaci'#btrack
-MICRONS_PER_PIXEL = 1.22
+MICRONS_PER_PIXEL = 0.537
 TRACK_FILENAME = '.h5'
-Z_SCALE = 3.45
+Z_SCALE = 1.00
 CALIBRATED_POS = False
 
 
 ##################
 # Small test set of Btracker data
 #################
-#
+
 # DATA_PATH = 'Z://Collaboration_data/Mace_Lab/h5/20211019T170641Z'
 # CTL_LABEL = 'Condition_Day0_Stablized WTEL08_B5'
 # CONDITIONS_TO_INCLUDE = ['Condition_Day0_Stablized WTEL08_B5', 'Condition_Day7_Stablized WTEL08_B5']
@@ -71,7 +71,8 @@ CALIBRATED_POS = False
 ############
 # # Mixed 20x - 100x (fixed temporal resolution, changew in spatial resolution)
 ############
-DATA_PATH = 'Z://Collaboration_data/Mace_Lab/20x_100x/20x_100x_high_temp_res'
+
+DATA_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res'
 CTL_LABEL = 'NK92WT_20x'
 CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
 CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
@@ -99,13 +100,43 @@ FACTOR_TIMEAVERAGE = False
 
 
 
+'''NEW ONE'''
+#
+# DATA_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING\HIGHTEMPORALRESOLUTION_toTYLER'
+# CTL_LABEL = 'Condition_untreated_day1'
+# CONDITIONS_TO_INCLUDE = ['Condition_untreated_day1', 'Condition_cytoD40uM_day1','Condition_untreated_day2', 'Condition_cytoD40uM_day2']
+# CONDITION_SHORTLABELS = ['D1_Untreated', 'D1_CytoD', 'D2_Untreated','D2_CytoD']
+# USE_SHORTLABELS = True
+#
+# DATASET_SHORTNAME = 'CytoD_hightempres'
+# USE_INPUT_REGIONPROPS = True
+#
+# # These ones happen to be consistent now, but that could easily change...
+# IMAGE_HEIGHT = 1024 # pixels
+# IMAGE_WIDTH = 1024 # pixels
+#
+# # Params to change between 20x and 100x
+# MICRONS_PER_PIXEL = 0.537 # Known to be only half true ?????????
+# # MICRONS_PER_PIXEL_LIST = [0.537,0.537, 0.537,0.537]
+# SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
+# SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
+#
+# CALCULATE_REGIONPROPS = False
+# OVERWRITE = False # Overwrite the pre-processed data.
+#
+# MIXED_SCALING = False # Not used yet, for futureproofing
+# SELF_STANDARDIZE = False
+# FACTOR_TIMEAVERAGE = False
+#
+
+
 
 
 
 '''
 Non-experiment specific constants
 '''
-OUTPUT_PATH = 'Z://Collaboration_data/Mace_Lab/my_generated/cellPLATO(dev)/'
+OUTPUT_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/cellPLATO(dev)/'
 
 CLUSTER_CMAP = 'tab20'
 CONDITION_CMAP = 'viridis'

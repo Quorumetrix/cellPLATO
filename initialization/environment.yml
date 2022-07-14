@@ -1,4 +1,4 @@
-name: cellPLATO
+name: cellPLATO-2022
 channels:
   - conda-forge
   - defaults

@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 
+from tqdm import tqdm
 
 def cell_calcs(cell_tarray, t_window=8):#, calibrate):
 

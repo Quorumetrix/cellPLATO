@@ -1,4 +1,6 @@
 from initialization.config import *
+from data_processing.cleaning_formatting_filtering import *
+from data_processing.migration_calculations import *
 
 import os
 import numpy as np
@@ -13,6 +15,114 @@ import scipy.stats
 # from segmentations import *
 
 
+def btrack_unpack(path):
+    '''
+    Unpack the selected h5 file and test assumptions about data structure.
+
+
+    Returns:
+        (coords, labels, omap, lbepr, dummies, fates, tmap, ttracks)
+    '''
+
+    STC = False
+
+    f = h5py.File(path)
+
+    objs = f['objects']
+    tracks = f['tracks']
+
+    coords = np.asarray(objs['obj_type_1']['coords'])
+    labels = np.asarray(objs['obj_type_1']['labels'])
+    omap = np.asarray(objs['obj_type_1']['map'])
+
+    lbepr = np.asarray(tracks['obj_type_1']['LBEPR'])
+    # dummies= np.asarray(tracks['obj_type_1']['dummies'])
+    fates = np.asarray(tracks['obj_type_1']['fates'])
+    tmap = np.asarray(tracks['obj_type_1']['map'])
+    ttracks= np.asarray(tracks['obj_type_1']['tracks'])
+
+    if(sum(abs(coords[:,3])) == 0):
+
+        print('2D track with zero as z component. Forcing STC')
+        STC = True
+
+    # Assert statements to make sure that our assumptions about the h5 file contents hold.
+    assert omap.shape[0] == len(np.unique(coords[:,0]))
+    assert len(ttracks) == np.max(tmap), 'Invalid assumption linking tmap to ttrack'
+    assert len(ttracks) == len(np.unique(ttracks)), 'Assumption that ttracks is a unique list is not valid'
+    # assert abs(np.min(ttracks)) == dummies.shape[0], 'Issue with negative numbers in ttracks encording in tmap'
+    # assert coords.shape[0] == np.max(ttracks)+1, 'Assumed relation between ttracks and coords invalid'
+
+
+    if 'dummies' in tracks['obj_type_1'] and 'segmentation' in f.keys():
+        '''
+        Ideally this part for dummies would be separate from the segmentation part..
+        '''
+        print('h5 file contains dummies')
+        segmentation = f['segmentation']['images']
+        dummies= np.asarray(tracks['obj_type_1']['dummies'])
+        h5_data = {
+            "coords": coords,
+            "labels": labels,
+            "omap": omap,
+            "lbepr": lbepr,
+            "dummies": dummies,
+            "fates": fates,
+            "tmap": tmap,
+            "ttracks": ttracks,
+            "segmentation": segmentation}
+
+    elif 'segmentation' in f.keys():
+
+        segmentation = f['segmentation']['images']
+
+        h5_data = {
+            "coords": coords,
+            "labels": labels,
+            "omap": omap,
+            "lbepr": lbepr,
+            # "dummies": dummies,
+            "fates": fates,
+            "tmap": tmap,
+            "ttracks": ttracks,
+            "segmentation": segmentation}
+
+        # return h5_data #(coords, labels, omap, lbepr, dummies, fates, tmap, ttracks, segmentation)
+
+    else:
+        print('No segmentation in h5 file')
+
+        '''
+        Note: currently nothing to catch the case where dummies and segmentatins are missing.
+            Will throw error below.
+        '''
+
+        h5_data = {
+
+            "coords": coords,
+            "labels": labels,
+            "omap": omap,
+            "lbepr": lbepr,
+            "dummies": dummies,
+            "fates": fates,
+            "tmap": tmap,
+            "ttracks": ttracks}
+
+        # return h5_data
+
+    # Check if the h5 file already contains regionprops
+    if 'properties' in objs['obj_type_1'] and USE_INPUT_REGIONPROPS:
+        print('btrack_unpack() found h5 file containing regionprops: ')
+        print(objs['obj_type_1']['properties'])
+        print(objs['obj_type_1']['properties'] is None)
+        # Create a dataframe containing each of the regionprops from the list in the config.
+        props_df = pd.DataFrame()
+        for prop in REGIONPROPS_LIST:
+            props_df[prop] = objs['obj_type_1']['properties'][prop]
+
+        h5_data['regionprops'] = props_df # Add to the h5_data disctioonary as a dataframe
+
+    return h5_data
 
 def load_data(cond,exp,cond_label, rep_label):#, paths):
     '''
@@ -52,32 +162,6 @@ def populate_experiment_list(fmt=INPUT_FMT,save=True): #'usiigaci'
     '''
 
     exp_list = []
-    if(fmt == 'usiigaci'):
-
-        for cond_dir in os.listdir(DATA_PATH):
-            f = os.path.join(DATA_PATH, cond_dir)
-            if os.path.isdir(f):
-                for sub_dir in os.listdir(os.path.join(DATA_PATH, cond_dir)):
-                    if(os.path.exists(os.path.join(DATA_PATH, cond_dir,sub_dir, TRACK_FILENAME))):
-                        exp_list.append((cond_dir, sub_dir))
-
-        exp_list_df = pd.DataFrame(exp_list, columns=['Condition', 'Experiment'])
-
-
-        # Until this point, an experiment list is populated entirely from the folder structure.
-
-        # Test that the correct conditions are listed in the config
-        assert CTL_LABEL in exp_list_df['Condition'].unique(), 'CTL_LABEL not in exp_list'
-        for cond in CONDITIONS_TO_INCLUDE:
-            assert cond in exp_list_df['Condition'].unique(), cond+' not in exp_list'
-
-        # Filter the condition list such that only those in CONDITIONS_TO_INCLUDE are included
-        included_exps = exp_list_df.Condition.isin(CONDITIONS_TO_INCLUDE)
-        exp_list_df = exp_list_df[included_exps]
-
-        # Reorder the experiment list according to the order of CONDITIONS_TO_INCLUDE
-        exp_list_df['Condition'] = pd.Categorical(exp_list_df['Condition'], CONDITIONS_TO_INCLUDE)
-        exp_list_df.sort_values(by='Condition', inplace=True, ascending=True)
 
     if(fmt == 'btrack'):
 
@@ -104,6 +188,13 @@ def populate_experiment_list(fmt=INPUT_FMT,save=True): #'usiigaci'
     if USE_SHORTLABELS:
         exp_list_df['Replicate_ID'] = exp_list_df['Experiment']
         exp_list_df = add_shortlabels(exp_list_df)
+
+    # Sort the dataframe by custom category list to set draw order
+    exp_list_df['Condition'] = pd.Categorical(exp_list_df['Condition'], CONDITIONS_TO_INCLUDE)
+
+
+    exp_list_df.sort_values(by='Condition', inplace=True, ascending=True)
+    exp_list_df.reset_index(inplace=True, drop=True)
 
     if save:
         exp_list_df.to_csv(DATA_OUTPUT+'exp_list' + '.csv') #+ TIMESTAMP (already in TIMESTAMP-named folder)
@@ -144,7 +235,7 @@ def get_experiments(path):
     return exp_list
 
 
-def combine_dataframes(exp_list, fmt=INPUT_FMT, dedup_columns=True): #, paths):
+def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths):
 
     '''
     Load results from multiple experiments together into a single DataFrame
@@ -157,108 +248,94 @@ def combine_dataframes(exp_list, fmt=INPUT_FMT, dedup_columns=True): #, paths):
     '''
     combined_df = pd.DataFrame()
 
-    if(fmt=='usiigaci'):
+    if(fmt=='btrack'):
 
-        uniq_cond =list(pd.unique(exp_list['Condition']))
+        cond_list = exp_list_df['Condition'].unique()
+        exp_list = exp_list_df['Experiment']
 
-        for i, cond in enumerate(uniq_cond):
-            #Return sub_df for each condition, containing replicates
-            sub_df = pd.DataFrame()
-            sub_df = exp_list.loc[(exp_list['Condition'] == cond )]
+        print('----')
+        print(CONDITIONS_TO_INCLUDE)
+        print(CONDITION_SHORTLABELS)
+        print(cond_list)
+        print('---')
 
-            # Get the list of replicates for each condition.
-            rep_list = list(sub_df['Experiment'])
+        for i, cond in enumerate(cond_list):
 
+            cond_exp_list = exp_list_df[exp_list_df['Condition'] == cond]['Experiment']
+            print(cond_exp_list)
+            for j,rep in enumerate(cond_exp_list):
 
-            # For each replicate in the list
-            for j, rep in enumerate(rep_list):
-                loaded_df =  load_data(cond,rep, cond,j)#, paths)
-
-                '''
-                Apply pixel micron corrections immediately to the loaded dataframe
-                '''
-
-                # Test that the position values are reasonable, considering the image dimensions
-                if(CALIBRATED_POS):
-
-                    print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in microns.')
-
-                    loaded_df['x_um'] = loaded_df['x']
-                    loaded_df['y_um'] = loaded_df['y']
-                    loaded_df['x_pix'] = loaded_df['x'] / MICRONS_PER_PIXEL
-                    loaded_df['y_pix'] = loaded_df['y'] / MICRONS_PER_PIXEL
-
-
-                else:
-                    print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in pixels.')
-
-                    loaded_df['x_um'] = loaded_df['x'] * MICRONS_PER_PIXEL
-                    loaded_df['y_um'] = loaded_df['y'] * MICRONS_PER_PIXEL
-                    loaded_df['x_pix'] = loaded_df['x']
-                    loaded_df['y_pix'] = loaded_df['y']
-
-                assert np.max(loaded_df['x_pix']) <= IMAGE_WIDTH, 'Position not within image coordinates, max x: ' + str(np.max(combined_df['x_pix']))
-                assert np.max(loaded_df['y_pix']) <= IMAGE_HEIGHT, 'Position not within image coordinates, max y: '+ str(np.max(combined_df['y_pix']))
-
-                # Also ensure that the values do fill up the image.
-                # assert np.max(loaded_df['x_pix']) >= IMAGE_WIDTH * 0.90, 'Position seems off'
-                # assert np.max(loaded_df['y_pix']) >= IMAGE_HEIGHT * 0.90, 'Position seems off'
-
-                print('max x_pix: ', str(np.max(loaded_df['x_pix'])), ', image width: ', IMAGE_WIDTH)
-                print('max y_pix: ', str(np.max(loaded_df['y_pix'])), ', image height: ', IMAGE_HEIGHT)
-                print('max x_um: ', str(np.max(loaded_df['x_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
-                print('max y_um: ', str(np.max(loaded_df['y_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
-
-                '''
-                Insert step here to remove RegionProps from the Usiigaci imported DataFrame
-                overlap = list(set(loaded_df.columns).intersection(REGIONPROPS_LIST))
-                print(' Removing regionprops columns from usiigaci-imported dataframe:', overlap)
-                loaded_df.drop(columns=overlap, inplace=True)
-                ** Not implemented yet: wait to see whether we include the regionprops from btrack directly
-                '''
-
-
-                # Additional data saving and loading shortcuts.
-                # To save processing time, instead of recalculating segmentation and migration calculations.
-
-                calcs_path = os.path.join(DATA_PATH, cond, rep,
+                calcs_path = os.path.join(DATA_PATH, cond,  rep, # Should still be okay with original; list
                                  'seg_mig_calcs.csv')
 
                 if(os.path.exists(calcs_path) and not OVERWRITE):
                     # If the file exists, load it
-                    print('Loading existing file: ' + cond + ', '+rep + '.csv')
+                    print('Loading existing file: ' + cond + ', '+ rep + '.csv')
                     mig_df = pd.read_csv(calcs_path)
 
                 else:
-                    print('WARNING: upstream calibratin method not yet tested for Usiitracker')
+
+
+                    if not os.path.exists(os.path.join(DATA_PATH, cond,  rep)):
+                        os.makedirs(os.path.join(DATA_PATH, cond,  rep))
+
+                    # Only load the h5 file if its not alraedy been processed.
+                    this_file = os.path.join(DATA_PATH,cond,rep) + TRACK_FILENAME
+                    f = h5py.File(this_file)
+                    assert 'segmentation' in f.keys(), 'segmentation not found'
+                    print('h5 file contents: ',f.keys())
+                    file_contents = btrack_unpack(this_file)
+
+                    h5_df = h5_to_df(file_contents)
+                    h5_df['Condition'] = cond
+                    h5_df['Experiment'] = rep
+
+
+                    print(i, cond, MICRONS_PER_PIXEL_LIST[i])
+
+                    #
+                    # New part to do the segmentation and migration calcs per replicate
+                    #
+                    # Make sure it has Replicate_ID column
+                    h5_df = clean_comb_df(h5_df)
+
+                    # Calibration must be done BEFORE the processing steps:
                     if(CALIBRATED_POS):
 
                         print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in microns.')
 
-                        loaded_df['x_um'] = loaded_df['x']
-                        loaded_df['y_um'] = loaded_df['y']
-                        loaded_df['x_pix'] = loaded_df['x'] / MICRONS_PER_PIXEL
-                        loaded_df['y_pix'] = loaded_df['y'] / MICRONS_PER_PIXEL
+                        h5_df['x_um'] = h5_df['x']
+                        h5_df['y_um'] = h5_df['y']
+                        h5_df['x_pix'] = h5_df['x'] / MICRONS_PER_PIXEL_LIST[i]
+                        h5_df['y_pix'] = h5_df['y'] / MICRONS_PER_PIXEL_LIST[i]
 
 
                     else:
                         print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in pixels.')
 
-                        loaded_df['x_um'] = loaded_df['x'] * MICRONS_PER_PIXEL
-                        loaded_df['y_um'] = loaded_df['y'] * MICRONS_PER_PIXEL
-                        loaded_df['x_pix'] = loaded_df['x']
-                        loaded_df['y_pix'] = loaded_df['y']
+                        h5_df['x_um'] = h5_df['x'] * MICRONS_PER_PIXEL_LIST[i]
+                        h5_df['y_um'] = h5_df['y'] * MICRONS_PER_PIXEL_LIST[i]
+                        h5_df['x_pix'] = h5_df['x']
+                        h5_df['y_pix'] = h5_df['y']
 
-
+                    print(h5_df.columns)
                     # Run the migration calcs and seg_df functions
                     print(calcs_path +' doesnt already exist, processing input data:')
-                    # Segmentations and region properties
-                    seg_df = batch_shape_measurements(loaded_df,n_samples ='all')#'all') # 10000 for btracker. This is just a coding test. Its not a valid way to select out a sample of the data, because it does not sample equally from each replicate/timepoint.
-                    seg_df = clean_comb_df(seg_df,deduplicate=dedup_columns)
-                    if dedup_columns is False:
-                        print('Warning: deduplicate=False on clean_comb_df(), there may be duplicate regionprops columns. Only intended use for debugging/testing.')
-                    # Process the migration calculations and clean resulting dataframe
-                    mig_df = migration_calcs(seg_df)
+
+                    if(CALCULATE_REGIONPROPS):
+                        # Segmentations and region properties
+                        seg_df = batch_shape_measurements(h5_df,n_samples ='all')#'all') # 10000 for btracker. This is just a coding test. Its not a valid way to select out a sample of the data, because it does not sample equally from each replicate/timepoint.
+                        # seg_df = clean_comb_df(seg_df)
+                        seg_df = clean_comb_df(seg_df,deduplicate=dedup_columns)
+                        if dedup_columns is False:
+                            print('Warning: deduplicate=False on clean_comb_df(), there may be duplicate regionprops columns. Only intended use for debugging/testing.')
+
+                        mig_df = migration_calcs(seg_df)
+
+                    else: # Assume that h5 file already contains regionprops
+
+                        mig_df = migration_calcs(h5_df)
+
                     mig_df.dropna(inplace=True)
                     mig_df.reset_index(inplace=True, drop=True)
 
@@ -267,110 +344,7 @@ def combine_dataframes(exp_list, fmt=INPUT_FMT, dedup_columns=True): #, paths):
                     print('Saving file: ' + calcs_path)
 
                 combined_df =  pd.concat([combined_df,mig_df])
-
-        combined_df.reset_index(inplace=True, drop=True)
-
-        print('Generated combined_df in new way, still needs to be integrated into original function, and adapted for 3D data')
-
-
-        # Testing the validity of the combined DataFrame
-        assert len(combined_df.index) > 0, 'Error combining dataframe, no data'
-
-        assert np.array_equal(pd.unique(combined_df['Cond_label']),
-                             pd.unique(exp_list['Condition'])),'Condition lists not equal'
-
-        assert len(pd.unique(combined_df['Replicate_ID'])) == len(pd.unique(exp_list['Experiment'])), ' Number of experiments not matching between exp_list and comb_df'
-
-        assert np.array_equal(pd.unique(combined_df['Replicate_ID']),
-                             pd.unique(exp_list['Experiment'])),'Condition lists not equal'
-
-
-    elif(fmt=='btrack'):
-
-        cond_list = exp_list['Condition']
-        exp_list = exp_list['Experiment']
-
-        for i, cond in enumerate(cond_list):
-
-            calcs_path = os.path.join(DATA_PATH, cond,  exp_list[i],
-                             'seg_mig_calcs.csv')
-
-            if(os.path.exists(calcs_path) and not OVERWRITE):
-                # If the file exists, load it
-                print('Loading existing file: ' + cond + ', '+ exp_list[i] + '.csv')
-                mig_df = pd.read_csv(calcs_path)
-
-            else:
-
-
-                if not os.path.exists(os.path.join(DATA_PATH, cond,  exp_list[i])):
-                    os.makedirs(os.path.join(DATA_PATH, cond,  exp_list[i]))
-
-                # Only load the h5 file if its not alraedy been processed.
-                this_file = os.path.join(DATA_PATH,cond,exp_list[i]) + TRACK_FILENAME
-                f = h5py.File(this_file)
-                assert 'segmentation' in f.keys(), 'segmentation not found'
-                print('h5 file contents: ',f.keys())
-                file_contents = btrack_unpack(this_file)
-
-                h5_df = h5_to_df(file_contents)
-                h5_df['Condition'] = cond
-                h5_df['Experiment'] = exp_list[i]
-
-
-                print(h5_df.columns)
-                #
-                # New part to do the segmentation and migration calcs per replicate
-                #
-                # Make sure it has Replicate_ID column
-                h5_df = clean_comb_df(h5_df)
-
-                # Calibration must be done BEFORE the processing steps:
-                if(CALIBRATED_POS):
-
-                    print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in microns.')
-
-                    h5_df['x_um'] = h5_df['x']
-                    h5_df['y_um'] = h5_df['y']
-                    h5_df['x_pix'] = h5_df['x'] / MICRONS_PER_PIXEL
-                    h5_df['y_pix'] = h5_df['y'] / MICRONS_PER_PIXEL
-
-
-                else:
-                    print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in pixels.')
-
-                    h5_df['x_um'] = h5_df['x'] * MICRONS_PER_PIXEL
-                    h5_df['y_um'] = h5_df['y'] * MICRONS_PER_PIXEL
-                    h5_df['x_pix'] = h5_df['x']
-                    h5_df['y_pix'] = h5_df['y']
-
-                print(h5_df.columns)
-                # Run the migration calcs and seg_df functions
-                print(calcs_path +' doesnt already exist, processing input data:')
-
-                if(CALCULATE_REGIONPROPS):
-                    # Segmentations and region properties
-                    seg_df = batch_shape_measurements(h5_df,n_samples ='all')#'all') # 10000 for btracker. This is just a coding test. Its not a valid way to select out a sample of the data, because it does not sample equally from each replicate/timepoint.
-                    # seg_df = clean_comb_df(seg_df)
-                    seg_df = clean_comb_df(seg_df,deduplicate=dedup_columns)
-                    if dedup_columns is False:
-                        print('Warning: deduplicate=False on clean_comb_df(), there may be duplicate regionprops columns. Only intended use for debugging/testing.')
-
-                    mig_df = migration_calcs(seg_df)
-
-                else: # Assume that h5 file already contains regionprops
-
-                    mig_df = migration_calcs(h5_df)
-
-                mig_df.dropna(inplace=True)
-                mig_df.reset_index(inplace=True, drop=True)
-
-                # Save the file
-                mig_df.to_csv(calcs_path)
-                print('Saving file: ' + calcs_path)
-
-            combined_df =  pd.concat([combined_df,mig_df])
-            combined_df.reset_index(inplace=True, drop=True)
+                combined_df.reset_index(inplace=True, drop=True)
 
     else:
 

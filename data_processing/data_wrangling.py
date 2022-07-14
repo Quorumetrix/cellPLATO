@@ -7,115 +7,115 @@ import numpy as np
 import pandas as pd
 
 import h5py
-
-def btrack_unpack(path):
-    '''
-    Unpack the selected h5 file and test assumptions about data structure.
-
-
-    Returns:
-        (coords, labels, omap, lbepr, dummies, fates, tmap, ttracks)
-    '''
-
-    STC = False
-
-    f = h5py.File(path)
-
-    objs = f['objects']
-    tracks = f['tracks']
-
-    coords = np.asarray(objs['obj_type_1']['coords'])
-    labels = np.asarray(objs['obj_type_1']['labels'])
-    omap = np.asarray(objs['obj_type_1']['map'])
-
-    lbepr = np.asarray(tracks['obj_type_1']['LBEPR'])
-    # dummies= np.asarray(tracks['obj_type_1']['dummies'])
-    fates = np.asarray(tracks['obj_type_1']['fates'])
-    tmap = np.asarray(tracks['obj_type_1']['map'])
-    ttracks= np.asarray(tracks['obj_type_1']['tracks'])
-
-    if(sum(abs(coords[:,3])) == 0):
-
-        print('2D track with zero as z component. Forcing STC')
-        STC = True
-
-    # Assert statements to make sure that our assumptions about the h5 file contents hold.
-    assert omap.shape[0] == len(np.unique(coords[:,0]))
-    assert len(ttracks) == np.max(tmap), 'Invalid assumption linking tmap to ttrack'
-    assert len(ttracks) == len(np.unique(ttracks)), 'Assumption that ttracks is a unique list is not valid'
-    # assert abs(np.min(ttracks)) == dummies.shape[0], 'Issue with negative numbers in ttracks encording in tmap'
-    # assert coords.shape[0] == np.max(ttracks)+1, 'Assumed relation between ttracks and coords invalid'
-
-
-    if 'dummies' in tracks['obj_type_1'] and 'segmentation' in f.keys():
-        '''
-        Ideally this part for dummies would be separate from the segmentation part..
-        '''
-        print('h5 file contains dummies')
-        segmentation = f['segmentation']['images']
-        dummies= np.asarray(tracks['obj_type_1']['dummies'])
-        h5_data = {
-            "coords": coords,
-            "labels": labels,
-            "omap": omap,
-            "lbepr": lbepr,
-            "dummies": dummies,
-            "fates": fates,
-            "tmap": tmap,
-            "ttracks": ttracks,
-            "segmentation": segmentation}
-
-    elif 'segmentation' in f.keys():
-
-        segmentation = f['segmentation']['images']
-
-        h5_data = {
-            "coords": coords,
-            "labels": labels,
-            "omap": omap,
-            "lbepr": lbepr,
-            # "dummies": dummies,
-            "fates": fates,
-            "tmap": tmap,
-            "ttracks": ttracks,
-            "segmentation": segmentation}
-
-        # return h5_data #(coords, labels, omap, lbepr, dummies, fates, tmap, ttracks, segmentation)
-
-    else:
-        print('No segmentation in h5 file')
-
-        '''
-        Note: currently nothing to catch the case where dummies and segmentatins are missing.
-            Will throw error below.
-        '''
-
-        h5_data = {
-
-            "coords": coords,
-            "labels": labels,
-            "omap": omap,
-            "lbepr": lbepr,
-            "dummies": dummies,
-            "fates": fates,
-            "tmap": tmap,
-            "ttracks": ttracks}
-
-        # return h5_data
-
-    # Check if the h5 file already contains regionprops
-    if 'properties' in objs['obj_type_1'] and USE_INPUT_REGIONPROPS:
-        print('btrack_unpack() found h5 file containing regionprops: ')
-        print(objs['obj_type_1']['properties'])
-        print(objs['obj_type_1']['properties'] is None)
-        # Create a dataframe containing each of the regionprops from the list in the config.
-        props_df = pd.DataFrame()
-        for prop in REGIONPROPS_LIST:
-            props_df[prop] = objs['obj_type_1']['properties'][prop]
-
-        h5_data['regionprops'] = props_df # Add to the h5_data disctioonary as a dataframe
-
-    return h5_data
+#
+# def btrack_unpack(path):
+#     '''
+#     Unpack the selected h5 file and test assumptions about data structure.
+#
+#
+#     Returns:
+#         (coords, labels, omap, lbepr, dummies, fates, tmap, ttracks)
+#     '''
+#
+#     STC = False
+#
+#     f = h5py.File(path)
+#
+#     objs = f['objects']
+#     tracks = f['tracks']
+#
+#     coords = np.asarray(objs['obj_type_1']['coords'])
+#     labels = np.asarray(objs['obj_type_1']['labels'])
+#     omap = np.asarray(objs['obj_type_1']['map'])
+#
+#     lbepr = np.asarray(tracks['obj_type_1']['LBEPR'])
+#     # dummies= np.asarray(tracks['obj_type_1']['dummies'])
+#     fates = np.asarray(tracks['obj_type_1']['fates'])
+#     tmap = np.asarray(tracks['obj_type_1']['map'])
+#     ttracks= np.asarray(tracks['obj_type_1']['tracks'])
+#
+#     if(sum(abs(coords[:,3])) == 0):
+#
+#         print('2D track with zero as z component. Forcing STC')
+#         STC = True
+#
+#     # Assert statements to make sure that our assumptions about the h5 file contents hold.
+#     assert omap.shape[0] == len(np.unique(coords[:,0]))
+#     assert len(ttracks) == np.max(tmap), 'Invalid assumption linking tmap to ttrack'
+#     assert len(ttracks) == len(np.unique(ttracks)), 'Assumption that ttracks is a unique list is not valid'
+#     # assert abs(np.min(ttracks)) == dummies.shape[0], 'Issue with negative numbers in ttracks encording in tmap'
+#     # assert coords.shape[0] == np.max(ttracks)+1, 'Assumed relation between ttracks and coords invalid'
+#
+#
+#     if 'dummies' in tracks['obj_type_1'] and 'segmentation' in f.keys():
+#         '''
+#         Ideally this part for dummies would be separate from the segmentation part..
+#         '''
+#         print('h5 file contains dummies')
+#         segmentation = f['segmentation']['images']
+#         dummies= np.asarray(tracks['obj_type_1']['dummies'])
+#         h5_data = {
+#             "coords": coords,
+#             "labels": labels,
+#             "omap": omap,
+#             "lbepr": lbepr,
+#             "dummies": dummies,
+#             "fates": fates,
+#             "tmap": tmap,
+#             "ttracks": ttracks,
+#             "segmentation": segmentation}
+#
+#     elif 'segmentation' in f.keys():
+#
+#         segmentation = f['segmentation']['images']
+#
+#         h5_data = {
+#             "coords": coords,
+#             "labels": labels,
+#             "omap": omap,
+#             "lbepr": lbepr,
+#             # "dummies": dummies,
+#             "fates": fates,
+#             "tmap": tmap,
+#             "ttracks": ttracks,
+#             "segmentation": segmentation}
+#
+#         # return h5_data #(coords, labels, omap, lbepr, dummies, fates, tmap, ttracks, segmentation)
+#
+#     else:
+#         print('No segmentation in h5 file')
+#
+#         '''
+#         Note: currently nothing to catch the case where dummies and segmentatins are missing.
+#             Will throw error below.
+#         '''
+#
+#         h5_data = {
+#
+#             "coords": coords,
+#             "labels": labels,
+#             "omap": omap,
+#             "lbepr": lbepr,
+#             "dummies": dummies,
+#             "fates": fates,
+#             "tmap": tmap,
+#             "ttracks": ttracks}
+#
+#         # return h5_data
+#
+#     # Check if the h5 file already contains regionprops
+#     if 'properties' in objs['obj_type_1'] and USE_INPUT_REGIONPROPS:
+#         print('btrack_unpack() found h5 file containing regionprops: ')
+#         print(objs['obj_type_1']['properties'])
+#         print(objs['obj_type_1']['properties'] is None)
+#         # Create a dataframe containing each of the regionprops from the list in the config.
+#         props_df = pd.DataFrame()
+#         for prop in REGIONPROPS_LIST:
+#             props_df[prop] = objs['obj_type_1']['properties'][prop]
+#
+#         h5_data['regionprops'] = props_df # Add to the h5_data disctioonary as a dataframe
+#
+#     return h5_data
 
 def format_for_superplots(df, metric, t, to_csv=False):
 
