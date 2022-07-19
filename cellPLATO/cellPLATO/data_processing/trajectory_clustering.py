@@ -7,7 +7,6 @@ from initialization.initialization import *
 import os
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 from scipy.interpolate import interp1d
 from scipy.spatial.distance import directed_hausdorff

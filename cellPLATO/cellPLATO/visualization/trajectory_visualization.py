@@ -13,6 +13,7 @@ import imageio
 
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import seaborn as sns
 
 plt.rcParams.update({
     "figure.facecolor":  (1.0, 1.0, 1.0, 1.0),
