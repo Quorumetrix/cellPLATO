@@ -72,7 +72,7 @@ FACTOR_TIMEAVERAGE = False
 # # Mixed 20x - 100x (fixed temporal resolution, changew in spatial resolution)
 ############
 # DATA_PATH = 'Z://Collaboration_data/Mace_Lab/20x_100x/20x_100x_high_temp_res'
-# CTL_LABEL = 'NK92WT_20x'
+# CTL_LABEL = 'CAMWT_20x'
 # CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
 # CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
 # USE_SHORTLABELS = True
@@ -91,9 +91,9 @@ FACTOR_TIMEAVERAGE = False
 # SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
 #
 # CALCULATE_REGIONPROPS = False
-# OVERWRITE = False # Overwrite the pre-processed data.
+# OVERWRITE = True # Overwrite the pre-processed data.
 #
-# MIXED_SCALING = True # Not used yet, for futureproofing
+# MIXED_SCALING = True
 # SELF_STANDARDIZE = False
 # FACTOR_TIMEAVERAGE = False
 
@@ -338,20 +338,3 @@ CLUSTERING = True
 CLUSTER_TSNE = True
 CLUSTER_PCA = True
 CLUSTER_XY = True
-
-
-
-
-'''
-Blender-related constants for 3D visualizations
-'''
-BLENDER_PATH = 'C://Program Files/Blender Foundation/Blender 2.92/blender.exe'
-PYTHON37_PATH = 'C://Program Files/Blender Foundation/Blender 2.92/2.92/python/'
-COMB_DF = 'comb_df' # Combined DataFrame: Dataframe containing pooled results between multiple experiments/conditions
-DR_DF = 'dr_df' # Dimension-Reduced DataFrame, modified comb_df with the tSNE values
-RENDER_ENGINE='BLENDER_EEVEE' # 'BLENDER_EEVEE','CYCLES'
-RENDER_DEVICE='GPU' # 'CPU'''GPU'
-ANIM_T0 = 1
-ANIM_TF = 250
-
-# from initialization.initialization import *

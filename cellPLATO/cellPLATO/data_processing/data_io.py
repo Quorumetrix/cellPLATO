@@ -1,4 +1,6 @@
 from initialization.config import *
+from initialization.initialization import *
+
 from data_processing.cleaning_formatting_filtering import *
 from data_processing.migration_calculations import *
 
@@ -9,11 +11,6 @@ import pandas as pd
 import fnmatch
 import h5py
 import scipy.stats
-
-#Previously:
-# from data_processing import *
-# from segmentations import *
-
 
 def btrack_unpack(path):
     '''

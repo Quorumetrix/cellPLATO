@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 TIMESTAMP = str(datetime.datetime.now()).replace(':', '-').replace('.', '-').replace(' ', '_')
 
-print('Dataset in current notebook: ',DATASET_SHORTNAME)
+# print('Dataset in current notebook: ',DATASET_SHORTNAME)
 
 print('Initializing: ', DATASET_SHORTNAME)
 print('Hypthesis testing using: ',STAT_TEST)
@@ -124,8 +124,14 @@ if CLUSTERING and CLUSTER_PCA and not os.path.exists(CLUST_PCA_DIR):
 if CLUSTERING and CLUSTER_XY and not os.path.exists(CLUST_XY_DIR):
      os.makedirs(CLUST_XY_DIR)
 
+# Some assert statements as sanity checks:
+assert CTL_LABEL in CONDITIONS_TO_INCLUDE, 'Be sure that CTL_LABEL in config is within the CONDITIONS_TO_INCLUDE list'
 
-
+if(USE_SHORTLABELS):
+    this_cond_ind = CONDITIONS_TO_INCLUDE.index(CTL_LABEL)
+    CTL_SHORTLABEL = CONDITION_SHORTLABELS[this_cond_ind]
+    print('Using corresponding CTL_SHORTLABEL: ',CTL_SHORTLABEL,
+    ' for condition: ', CTL_LABEL)
 
 # Archive a copy of this config file for future reference
 if(ARCHIVE_CONFIG):
