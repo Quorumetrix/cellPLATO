@@ -74,6 +74,9 @@ This could all be cleaned up by defining functions to use directly within the cl
 Rather then having them sit in the script between Classes.
 '''
 
+print('COND_LIST: ',COND_LIST)
+print('REP_LIST: ',REP_LIST)
+
 class ScatterExplorer(param.Parameterized):
 
 
@@ -257,8 +260,8 @@ class JointExplorer(param.Parameterized):
         super().__init__(**kwargs)
         self.df_in = df_in
 
-    X_variable = param.Selector(inputs, default='tSNE1')
-    Y_variable = param.Selector(inputs, default='tSNE2')
+    X_variable = param.Selector(inputs, default='x')
+    Y_variable = param.Selector(inputs, default='y')
     marginals = param.Selector(marginals, default='histogram')
     frame = param.Integer(default=1, bounds=(1, FRAME_END))
     cond = param.Selector(COND_LIST, default=COND_LIST[0])

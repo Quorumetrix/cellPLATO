@@ -1,4 +1,4 @@
-name: cellPLATO
+name: cellPLATO_testJULY22
 channels:
   - conda-forge
   - defaults
@@ -18,6 +18,7 @@ dependencies:
     - alabaster==0.7.12
     - anyio==3.6.1
     - appdirs==1.4.4
+    - astunparse==1.6.3
     - attrdict==2.0.1
     - babel==2.10.3
     - beautifulsoup4==4.11.1
@@ -77,6 +78,7 @@ dependencies:
     - jupyterlab==3.4.3
     - jupyterlab-server==2.10.3
     - kaleido==0.1.0.post1
+    - llvmlite==0.34.0
     - locket==1.0.0
     - lru-dict==1.1.7
     - magicgui==0.5.1
@@ -95,15 +97,17 @@ dependencies:
     - nest-asyncio==1.5.5
     - notebook-shim==0.1.0
     - numba==0.51.2
+    - numpy==1.21.0
     - numpydoc==1.4.0
     - openpyxl==3.0.7
     - opentsne==0.5.1
-    - pandas==0.25.3
+    - pandas==1.2.3
     - panel==0.11.0
     - param==1.12.2
     - parsimonious==0.8.1
     - partd==1.2.0
     - patsy==0.5.2
+    - pdoc==12.0.2
     - pillow==9.2.0
     - pint==0.18
     - plotly==4.14.1
@@ -115,6 +119,7 @@ dependencies:
     - pycryptodome==3.15.0
     - pyct==0.4.8
     - pydantic==1.9.1
+    - pygments==2.12.0
     - pynndescent==0.5.7
     - pyopengl==3.1.6
     - pypiwin32==223

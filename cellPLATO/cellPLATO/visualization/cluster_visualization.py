@@ -19,7 +19,8 @@ plt.rcParams.update({
     "axes.facecolor":    (1.0, 1.0, 1.0, 1.0),
     "savefig.facecolor": (1.0, 1.0, 1.0, 1.),
     "figure.figsize":    (10,10),
-    "font.size": 12
+    "font.size": 12,
+    "agg.path.chunksize": 20000
 })
 
 import sklearn.preprocessing

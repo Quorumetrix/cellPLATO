@@ -41,9 +41,9 @@ FACTOR_TIMEAVERAGE = False
 # '''
 # Ultimate, high temporal resolution dataset
 # '''
-#
+# #
 # DATA_PATH = 'Z://Collaboration_data/Mace_Lab/ultimate_high_temp_res'
-# CTL_LABEL = 'Condition_ICAM_nochemokine_day2_cp_masks'
+# CTL_LABEL = 'untreated_day1'
 # CONDITIONS_TO_INCLUDE = ['untreated_day1', 'untreated_day2','cytoD40uM_day1','cytoD40uM_day2']
 # CONDITION_SHORTLABELS = ['ctl_day1', 'ctl_day2', 'cytoD_day1', 'cytoD_day2']
 # USE_SHORTLABELS = True
