@@ -119,6 +119,8 @@ PLOTS_IN_BROWSER = False
 
 ANIMATE_TRAJECTORIES = True
 
+DEBUG = False
+
 #tSNE parameters and embedding:
 TSNE_PERP = 185#230 # Perplexity
 TSNE_R_S = 11 # Random seed
@@ -224,7 +226,7 @@ FACTOR_PAIRS = [['tSNE1', 'tSNE2'],
 
 DR_FACTORS = REGIONPROPS_LIST + MIG_FACTORS + ADDITIONAL_FACTORS
 # Numerical factors for plotting.
-NUM_FACTORS = DR_FACTORS + ['tSNE1', 'tSNE2', 'PC1', 'PC2']
+NUM_FACTORS = DR_FACTORS + ['tSNE1', 'tSNE2', 'UMAP1', 'UMAP2','PC1', 'PC2']
 
 # Optionally define your data filters here.
 DATA_FILTERS = {

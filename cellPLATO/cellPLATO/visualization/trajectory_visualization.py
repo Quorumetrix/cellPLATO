@@ -23,10 +23,9 @@ plt.rcParams.update({
     "font.size": 12
 })
 
-def plot_cell_metrics(cell_df, i_step):
+def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
     '''
     For a selected cell, at a selected step of its trajectory, make a plot
-
     '''
     # Using the same sample cell trajectory, print out some measurements
     fig, (ax) = plt.subplots(1,1)
@@ -74,12 +73,14 @@ def plot_cell_metrics(cell_df, i_step):
     text_x = x*2 # Still a magic number, replace with calibration value ??
     text_y = y*2 # Still a magic number, replace with calibration value ??
 
-    for n, fac in enumerate(MIG_DISPLAY_FACTORS):
+
+
+    for n, fac in enumerate(mig_display_factors):
 
         ax.text(text_x + 10,text_y +2 +  n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
                 color='tab:blue', fontsize=10)
 
-    for n, fac in enumerate(SHAPE_DISPLAY_FACTORS):
+    for n, fac in enumerate(shape_display_factors):
 
         ax.text(text_x + 10, text_y - 2 - n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
                 color='tab:orange', fontsize=10)

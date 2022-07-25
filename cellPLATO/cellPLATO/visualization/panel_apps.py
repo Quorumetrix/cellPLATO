@@ -44,7 +44,13 @@ from openTSNE import TSNE, TSNEEmbedding, affinity, initialization
 from openTSNE.callbacks import ErrorLogger
 
 from data_processing.data_io import *
+from data_processing.clustering import *
+from data_processing.pipelines import *
+from data_processing.cleaning_formatting_filtering import *
+from visualization.cluster_visualization import *
+from visualization.filter_visualization import *
 from visualization.timecourse_visualization import *
+from visualization.trajectory_visualization import *
 # Previously we just imported *everything* from the module:
 # from comparative_visualization import *
 # from spacetimecube import *
@@ -76,6 +82,101 @@ Rather then having them sit in the script between Classes.
 
 print('COND_LIST: ',COND_LIST)
 print('REP_LIST: ',REP_LIST)
+
+
+class MetricsExplorer(param.Parameterized):
+
+    factors = DR_FACTORS + ['x_um', 'y_um']
+    fac1 = param.Selector(factors, default='speed')
+    fac2 = param.Selector(factors, default='area')
+    frame = param.Integer(default=10, bounds=(1, FRAME_END))
+    plot_by = param.Selector(['xy', 'pca', 'tSNE', 'umap'], default='xy')
+
+
+
+    def __init__(self, df, **kwargs):
+        super().__init__(**kwargs)
+        self.df = df
+
+    @param.depends('fac1','fac2', 'frame', 'plot_by')
+
+    def plot(self):
+        return self.get_plot()
+
+    def panel(self):
+        return pn.Row(self.param, self.plot)
+
+
+    def get_plot(self):
+
+        df = self.df
+        fig = plot_cell_metrics(df, self.frame, mig_display_factors=[self.fac1], shape_display_factors=[self.fac2])
+
+        return fig
+
+
+
+class FilterExplorer(param.Parameterized):
+
+    factors = DR_FACTORS + ['x_um', 'y_um']
+    filt1 = param.Selector(factors, default='speed')
+    filt1_range = param.Range(default=(0,50.0), bounds=(0, 50))
+
+    filt2 = param.Selector(factors, default='area')
+    filt2_range = param.Range(default=(0,100.0), bounds=(0, 100))
+    ntpts_range = param.Range(default=(0, 100.0), bounds = (0, 100.0))
+
+    how = param.Selector(['any', 'all'], default='any')
+    plot_by = param.Selector(['xy', 'pca', 'tSNE', 'umap'], default='xy')
+
+
+
+    def __init__(self, df, **kwargs):
+        super().__init__(**kwargs)
+        self.df = df
+
+    @param.depends('filt1', 'filt1_range',
+                   'filt2','filt2_range','ntpts_range', 'how', 'plot_by')#, 'fraction_to_display')
+
+    def plot(self):
+        return self.get_plot()
+
+    def panel(self):
+        return pn.Row(self.param, self.plot)
+
+
+    def get_plot(self):
+
+        df = self.df
+
+
+        # User-defined filters in dict {factor:(min, max)}
+        data_filters = {
+        #   "speed": (10, 100),
+          self.filt1: self.filt1_range,
+          self.filt2: self.filt1_range,
+          # "area": (0, 10000), # Warning: range will change if self-normalized
+          "ntpts": self.ntpts_range#(0,1000)
+        }
+
+        # Returns a filtered dataframe, while also adding included column to comb_df
+        filt_df, filt_counts = apply_filters(df,filter_dict=data_filters)
+
+        fig = visualize_filtering(df, filt_counts,plot_by=self.plot_by)
+
+
+        # fig = time_superplot(df, factor, t_window)
+
+
+
+        return fig
+
+
+
+
+
+
+
 
 class ScatterExplorer(param.Parameterized):
 
@@ -251,6 +352,8 @@ def get_jointplot(df_in,X_variable, Y_variable, marginals, frame, cond, rep): # 
                             title="Exploratory jointplot: " + rep, trendline="ols",
                             range_x = [bounds[0], bounds[1]],
                             range_y = [bounds[2], bounds[3]])
+    # fig = sns.jointplot(data=df, x=X_variable, y=Y_variable, hue="Condition", kind="kde")
+
 
     return fig
 
@@ -260,11 +363,11 @@ class JointExplorer(param.Parameterized):
         super().__init__(**kwargs)
         self.df_in = df_in
 
-    X_variable = param.Selector(inputs, default='x')
-    Y_variable = param.Selector(inputs, default='y')
+    X_variable = param.Selector(inputs, default='tSNE1')
+    Y_variable = param.Selector(inputs, default='tSNE2')
     marginals = param.Selector(marginals, default='histogram')
-    frame = param.Integer(default=1, bounds=(1, FRAME_END))
-    cond = param.Selector(COND_LIST, default=COND_LIST[0])
+    frame = param.Integer(default=10, bounds=(1, FRAME_END))
+    cond = param.Selector(COND_LIST, default='all')
     rep = param.Selector(REP_LIST, default='pooled')
 
     @param.depends('X_variable', 'Y_variable', 'frame', 'marginals', 'cond', 'rep') # , 'rep_i'
@@ -417,6 +520,108 @@ class TsneKmeans(param.Parameterized):
 
 
 
+
+
+
+
+class HdbscanExplorer(param.Parameterized):
+
+    perplexity = param.Number(TSNE_PERP,bounds=(0.0,200.0))
+    early_exaggeration = param.Number(12.0,bounds=(0.0,50.0))
+    n_iter = param.Integer(default=250, bounds=(25, 1000))
+    learning_rate = param.Number(200.0,bounds=(10.0,1000.0))
+    random_state = param.Integer(default=11, bounds=(0, 20))
+
+    umap_nn = param.Integer(default=15, bounds=(1, 50))
+    umap_min_dist = param.Number(UMAP_MIN_DIST,bounds=(0.1,1.0))
+
+    # rep = param.Selector(REP_LIST, default=REP_LIST[0])
+    factor = param.Selector(DR_FACTORS, default='area')
+    min_cluster_size = param.Integer(default=20, bounds=(1, 100))
+    cluster_by = param.Selector(['xy','PCs', 'tSNE', 'UMAP'], default='tSNE')
+    color_by = param.Selector(['condition', 'PCs', 'cluster'])
+
+
+
+    def __init__(self, df, **kwargs):
+        super().__init__(**kwargs)
+        self.df = df
+
+    @param.depends('perplexity', 'early_exaggeration', 'n_iter',
+                   'learning_rate','random_state','factor',
+                   'min_cluster_size', 'color_by','factor', 'cluster_by')
+
+    def plot(self):
+        return self.get_plot()
+
+    def panel(self):
+        return pn.Row(self.param, self.plot)
+
+
+    def get_plot(self):
+
+
+        if self.cluster_by == 'xy':
+            x_name = 'x'
+            y_name = 'y'
+        elif (self.cluster_by == 'pca' or self.cluster_by == 'PCA' or self.cluster_by == 'PCs'):
+            x_name = 'PC1'
+            y_name = 'PC2'
+        elif (self.cluster_by == 'tsne' or self.cluster_by == 'tSNE'):
+            x_name = 'tSNE1'
+            y_name = 'tSNE2'
+
+        elif (self.cluster_by == 'umap' or self.cluster_by == 'UMAP'):
+            x_name = 'UMAP1'
+            y_name = 'UMAP2'
+
+
+
+
+
+
+        # Make the subplot figures with matplotlib
+        fig, axes = plt.subplots(1,2, figsize=(10, 5))
+        FigureCanvas(fig) # not needed in mpl >= 3.1
+
+        # Subplots using seaborn
+        palette = PALETTE#'tab10'
+
+        dr_df = dr_pipeline(self.df, dr_factors=DR_FACTORS, dr_input='factors', tsne_perp=self.perplexity,umap_nn=self.umap_nn,min_dist=self.umap_min_dist)
+
+        # dr_df = dr_pipeline(self.df, dr_factors=DR_FACTORS)
+
+        lab_dr_df = hdbscan_clustering(dr_df,min_cluster_size=self.min_cluster_size,cluster_by=self.cluster_by, plot=False)
+        # sns.scatterplot(ax=axes[0], data=dr_df, x=x_name, y=y_name, palette=palette, hue='label', legend=False)
+
+        draw_cluster_hulls(lab_dr_df,cluster_by=self.cluster_by, color_by=self.color_by,legend=False,ax=axes[0],draw_pts=True,save_path=CLUST_PARAMS_DIR+'condition')
+
+
+
+        # Subplots using seaborn
+
+        palette = PALETTE#'tab10'
+        sns.scatterplot(ax=axes[0], data=lab_dr_df, x=x_name, y=y_name, palette=palette, hue='label', legend=False)
+
+        # Get a colormap the length of the list of labels
+        labels=lab_dr_df['label'].unique()
+        labels=labels[~np.isnan(labels)]
+        cmap = np.asarray(sns.color_palette(palette, n_colors=len(labels)))
+
+        axes[1].set_title(self.factor)
+
+        for i, val in enumerate(labels):
+
+            this_color = cmap[i,:]
+            sns.kdeplot(lab_dr_df[lab_dr_df['label']==val][self.factor], shade=True, color=this_color,ax=axes[1], legend=False)
+
+
+        return fig
+
+
+
+
+
 class TsneDbscanExplorer(param.Parameterized):
 
     perplexity = param.Number(30.0,bounds=(0.0,200.0))
@@ -458,6 +663,8 @@ class TsneDbscanExplorer(param.Parameterized):
         sub_df = df[DR_FACTORS] # Filter original dataframe by select factors
         x = sub_df.values   # Matrix to be used in the dimensionality reduction
 
+        x_ = StandardScaler().fit_transform(x)
+
         n_components = 2
         n_iter_wo_prog = 300
         init = 'pca' # 'random'
@@ -473,7 +680,7 @@ class TsneDbscanExplorer(param.Parameterized):
                       n_jobs = n_jobs,
                       random_state=self.random_state)
 
-        tsne_results = tsne.fit_transform(x)
+        tsne_results = tsne.fit_transform(x_)
 
         return df, tsne_results
 
@@ -590,8 +797,10 @@ class ReEmbeddingExplorer(param.Parameterized):
             random_state=TSNE_R_S,
         )
 
+        x_ = StandardScaler().fit_transform(x)
+
         #Save temp embedding
-        embedded_x = tsne.fit(x)
+        embedded_x = tsne.fit(x_)
         embedding_array = np.asarray(embedded_x) # as array for easy visualization
         np.save(DATA_OUTPUT+EMBEDDING_FILENAME,embedding_array)
         np.save(DATA_OUTPUT+TRAINX_FILENAME,x)
@@ -621,9 +830,9 @@ class ReEmbeddingExplorer(param.Parameterized):
             loaded_embedd_arr,
             affinities,
         )
-
+        x_ = StandardScaler().fit_transform(x)
         # Apply the saved embedding to the existing current testing data x.
-        embedded_x = saved_embedding.transform(x)
+        embedded_x = saved_embedding.transform(x_)
         embedding_array = np.asarray(embedded_x) # as array for easy visualization
 
         return df, embedding_array#tsne_results
@@ -695,6 +904,9 @@ class SupertimePlotExplorer(param.Parameterized):
         return fig
 
 
+
+
+
 class ClusterExplorer(param.Parameterized):
 
     '''
@@ -706,20 +918,22 @@ class ClusterExplorer(param.Parameterized):
 
     '''
 
-    eps_x100 = param.Number(15,bounds=(1,200))#)0.15,bounds=(0.05,0.2))
-    min_samples = param.Integer(default=10, bounds=(1, 50))
+    # eps_x100 = param.Number(15,bounds=(1,200))#)0.15,bounds=(0.05,0.2))
+    # min_samples = param.Integer(default=10, bounds=(1, 50))
 
-    rep = param.Selector(REP_LIST, default=REP_LIST[0])
+    # rep = param.Selector(REP_LIST, default=REP_LIST[0])
     factor = param.Selector(DR_FACTORS, default='area')
-    cluster_by = param.Selector(['xy','PCs', 'tSNE'], default='tSNE')
-
+    min_cluster_size = param.Integer(default=20, bounds=(1, 100))
+    cluster_by = param.Selector(['xy','PCs', 'tSNE', 'UMAP'], default='tSNE')
+    color_by = param.Selector(['condition', 'PCs', 'cluster'])
 
     def __init__(self, df, **kwargs):
         super().__init__(**kwargs)
         self.df = df
 
 
-    @param.depends('eps_x100','min_samples', 'rep', 'factor', 'cluster_by')
+    # @param.depends('eps_x100','min_samples', 'rep', 'factor', 'cluster_by')
+    @param.depends('min_cluster_size', 'color_by','factor', 'cluster_by')
 
     def plot(self):
         return self.get_plot()
@@ -734,24 +948,27 @@ class ClusterExplorer(param.Parameterized):
         if self.cluster_by == 'xy':
             x_name = 'x'
             y_name = 'y'
-        elif self.cluster_by == 'PCs':
+        elif (self.cluster_by == 'pca' or self.cluster_by == 'PCA' or self.cluster_by == 'PCs'):
             x_name = 'PC1'
             y_name = 'PC2'
-        elif self.cluster_by == 'tSNE':
+        elif (self.cluster_by == 'tsne' or self.cluster_by == 'tSNE'):
             x_name = 'tSNE1'
             y_name = 'tSNE2'
 
-        sub_set = self.df[[x_name, y_name]]
-        X = StandardScaler().fit_transform(sub_set)
-        db = DBSCAN(eps=self.eps_x100/100, min_samples=self.min_samples).fit(X)
-        core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
-        core_samples_mask[db.core_sample_indices_] = True
-        labels = db.labels_
+        elif (self.cluster_by == 'umap' or self.cluster_by == 'UMAP'):
+            x_name = 'UMAP1'
+            y_name = 'UMAP2'
+
+        # sub_set = self.df[[x_name, y_name]]
+        # X = StandardScaler().fit_transform(sub_set)
+        # db = DBSCAN(eps=self.eps_x100/100, min_samples=self.min_samples).fit(X)
+        # core_samples_mask = np.zeros_like(db.labels_, dtype=bool)
+        # core_samples_mask[db.core_sample_indices_] = True
+        # labels = db.labels_
 
         # Assemble a dataframe from the results
-#         tsne_df = pd.DataFrame(data = tsne_x, columns = ['tSNE1', 'tSNE2'])
-        lab_df = pd.DataFrame(data = labels, columns = ['label'])
-        dr_df = pd.concat([self.df,lab_df], axis=1)
+        # lab_df = pd.DataFrame(data = labels, columns = ['label'])
+        # dr_df = pd.concat([self.df,lab_df], axis=1)
 
         # Make the subplot figures with matplotlib
         fig, axes = plt.subplots(1,2, figsize=(10, 5))
@@ -759,7 +976,11 @@ class ClusterExplorer(param.Parameterized):
 
         # Subplots using seaborn
         palette = PALETTE#'tab10'
-        sns.scatterplot(ax=axes[0], data=dr_df, x=x_name, y=y_name, palette=palette, hue='label', legend=False)
+
+        dr_df = hdbscan_clustering(self.df,min_cluster_size=self.min_cluster_size,cluster_by=self.cluster_by, plot=False)
+        # sns.scatterplot(ax=axes[0], data=dr_df, x=x_name, y=y_name, palette=palette, hue='label', legend=False)
+
+        draw_cluster_hulls(dr_df,cluster_by=self.cluster_by, color_by=self.color_by,legend=False,ax=axes[0],draw_pts=True,save_path=CLUST_PARAMS_DIR+'condition')
 
         # Get a colormap the length of the list of labels
         labels=dr_df['label'].unique()

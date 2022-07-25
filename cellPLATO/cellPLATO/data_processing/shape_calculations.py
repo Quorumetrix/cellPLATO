@@ -67,7 +67,8 @@ def get_cell_contours(data_in, fmt=INPUT_FMT):
 
                 # Unpack h5 file
                 load_path = os.path.join(DATA_PATH,cond, exp)
-                print('loading: ', load_path)
+                if(DEBUG):
+                    print('loading: ', load_path)
                 h5_contents = btrack_unpack(load_path + TRACK_FILENAME)
 
                 coords = np.asarray(h5_contents['coords'])
@@ -81,14 +82,16 @@ def get_cell_contours(data_in, fmt=INPUT_FMT):
 
                 # Unpack h5 file
                 load_path = os.path.join(DATA_PATH,cond, exp)
-                print('loading: ', load_path)
+
                 h5_contents = btrack_unpack(load_path + TRACK_FILENAME)
 
                 coords = np.asarray(h5_contents['coords'])
                 seg = np.asarray(h5_contents['segmentation'])
 
-                print('coords.shape: ',coords.shape)
-                print('seg.shape: ',seg.shape)
+                if(DEBUG):
+                    print('loading: ', load_path)
+                    print('coords.shape: ',coords.shape)
+                    print('seg.shape: ',seg.shape)
 
 
             img,(imx, imy) = btrackimage_from_df(x,y,z,t,coords, seg)
@@ -113,7 +116,7 @@ def get_cell_contours(data_in, fmt=INPUT_FMT):
 
 
                 '''
-                Contout findined code
+                Contour findiner code
                 from get_contour()
                 NOTE: consider updating get_contour to return the x,y coords.
                 Note: For now, this part here is being done twice since get_contour()

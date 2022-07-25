@@ -39,8 +39,8 @@ def btrack_unpack(path):
     ttracks= np.asarray(tracks['obj_type_1']['tracks'])
 
     if(sum(abs(coords[:,3])) == 0):
-
-        print('2D track with zero as z component. Forcing STC')
+        if (DEBUG):
+            print('2D track with zero as z component. Forcing STC')
         STC = True
 
     # Assert statements to make sure that our assumptions about the h5 file contents hold.
@@ -55,7 +55,9 @@ def btrack_unpack(path):
         '''
         Ideally this part for dummies would be separate from the segmentation part..
         '''
-        print('h5 file contains dummies')
+
+        if (DEBUG):
+            print('h5 file contains dummies')
         segmentation = f['segmentation']['images']
         dummies= np.asarray(tracks['obj_type_1']['dummies'])
         h5_data = {
@@ -87,7 +89,8 @@ def btrack_unpack(path):
         # return h5_data #(coords, labels, omap, lbepr, dummies, fates, tmap, ttracks, segmentation)
 
     else:
-        print('No segmentation in h5 file')
+        if (DEBUG):
+            print('No segmentation in h5 file')
 
         '''
         Note: currently nothing to catch the case where dummies and segmentatins are missing.
@@ -109,9 +112,10 @@ def btrack_unpack(path):
 
     # Check if the h5 file already contains regionprops
     if 'properties' in objs['obj_type_1'] and USE_INPUT_REGIONPROPS:
-        print('btrack_unpack() found h5 file containing regionprops: ')
-        print(objs['obj_type_1']['properties'])
-        print(objs['obj_type_1']['properties'] is None)
+        if (DEBUG):
+            print('btrack_unpack() found h5 file containing regionprops: ')
+            print(objs['obj_type_1']['properties'])
+            print(objs['obj_type_1']['properties'] is None)
         # Create a dataframe containing each of the regionprops from the list in the config.
         props_df = pd.DataFrame()
         for prop in REGIONPROPS_LIST:
@@ -250,16 +254,20 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
         cond_list = exp_list_df['Condition'].unique()
         exp_list = exp_list_df['Experiment']
 
-        print('----')
-        print(CONDITIONS_TO_INCLUDE)
-        print(CONDITION_SHORTLABELS)
-        print(cond_list)
-        print('---')
+        if (DEBUG):
+            print('----')
+            print(CONDITIONS_TO_INCLUDE)
+            print(CONDITION_SHORTLABELS)
+            print(cond_list)
+            print('---')
 
         for i, cond in enumerate(cond_list):
 
             cond_exp_list = exp_list_df[exp_list_df['Condition'] == cond]['Experiment']
-            print(cond_exp_list)
+
+            if (DEBUG):
+                print(cond_exp_list)
+
             for j,rep in enumerate(cond_exp_list):
 
                 calcs_path = os.path.join(DATA_PATH, cond,  rep, # Should still be okay with original; list
@@ -267,7 +275,8 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
 
                 if(os.path.exists(calcs_path) and not OVERWRITE):
                     # If the file exists, load it
-                    print('Loading existing file: ' + cond + ', '+ rep + '.csv')
+                    if (DEBUG):
+                        print('Loading existing file: ' + cond + ', '+ rep + '.csv')
                     mig_df = pd.read_csv(calcs_path)
 
                 else:
@@ -280,15 +289,16 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
                     this_file = os.path.join(DATA_PATH,cond,rep) + TRACK_FILENAME
                     f = h5py.File(this_file)
                     assert 'segmentation' in f.keys(), 'segmentation not found'
-                    print('h5 file contents: ',f.keys())
+                    if (DEBUG):
+                        print('h5 file contents: ',f.keys())
                     file_contents = btrack_unpack(this_file)
 
                     h5_df = h5_to_df(file_contents)
                     h5_df['Condition'] = cond
                     h5_df['Experiment'] = rep
 
-
-                    print(i, cond, MICRONS_PER_PIXEL_LIST[i])
+                    if (DEBUG):
+                        print(i, cond, MICRONS_PER_PIXEL_LIST[i])
 
                     #
                     # New part to do the segmentation and migration calcs per replicate
@@ -298,8 +308,8 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
 
                     # Calibration must be done BEFORE the processing steps:
                     if(CALIBRATED_POS):
-
-                        print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in microns.')
+                        if (DEBUG):
+                            print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in microns.')
 
                         h5_df['x_um'] = h5_df['x']
                         h5_df['y_um'] = h5_df['y']
@@ -308,16 +318,18 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
 
 
                     else:
-                        print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in pixels.')
+                        if (DEBUG):
+                            print('CALIBRATED_POS == ' ,str(CALIBRATED_POS), ', Input positions in pixels.')
 
                         h5_df['x_um'] = h5_df['x'] * MICRONS_PER_PIXEL_LIST[i]
                         h5_df['y_um'] = h5_df['y'] * MICRONS_PER_PIXEL_LIST[i]
                         h5_df['x_pix'] = h5_df['x']
                         h5_df['y_pix'] = h5_df['y']
 
-                    print(h5_df.columns)
-                    # Run the migration calcs and seg_df functions
-                    print(calcs_path +' doesnt already exist, processing input data:')
+                    if (DEBUG):
+                        print(h5_df.columns)
+                        # Run the migration calcs and seg_df functions
+                        print(calcs_path +' doesnt already exist, processing input data:')
 
                     if(CALCULATE_REGIONPROPS):
                         # Segmentations and region properties
@@ -354,10 +366,12 @@ def combine_dataframes(exp_list_df, fmt=INPUT_FMT, dedup_columns=True): #, paths
         assert np.max(combined_df['x_pix']) <= IMAGE_WIDTH, 'Position not within image coordinates, max x: ' + str(np.max(combined_df['x_pix']))
         assert np.max(combined_df['y_pix']) <= IMAGE_HEIGHT, 'Position not within image coordinates, max y: '+ str(np.max(combined_df['y_pix']))
 
-    print('max x_pix: ', str(np.max(combined_df['x_pix'])), ', image width: ', IMAGE_WIDTH)
-    print('max y_pix: ', str(np.max(combined_df['y_pix'])), ', image height: ', IMAGE_HEIGHT)
-    print('max x_um: ', str(np.max(combined_df['x_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
-    print('max y_um: ', str(np.max(combined_df['y_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
+    if (DEBUG):
+
+        print('max x_pix: ', str(np.max(combined_df['x_pix'])), ', image width: ', IMAGE_WIDTH)
+        print('max y_pix: ', str(np.max(combined_df['y_pix'])), ', image height: ', IMAGE_HEIGHT)
+        print('max x_um: ', str(np.max(combined_df['x_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
+        print('max y_um: ', str(np.max(combined_df['y_um'])), ', MICRONS_PER_PIXEL: ', MICRONS_PER_PIXEL)
 
     # Clean and calibrate the dataframe
     if(USE_SHORTLABELS):
@@ -393,13 +407,14 @@ def h5_to_df(h5_data,min_pts=0):
         dummies = h5_data['dummies']
 
     if  'regionprops' in h5_data.keys():#if h5_data['regionprops'] is not None:
+        if (DEBUG):
+            print('h5_data passed t h5_to_df() contains regionprops, adding to df.')
+            print(h5_data['regionprops'].columns)
 
-        print('h5_data passed t h5_to_df() contains regionprops, adding to df.')
-        print(h5_data['regionprops'].columns)
+            print('props_arr: ',props_arr.shape)
+            print('coords: ',coords.shape)
+
         props_arr = np.asarray(h5_data['regionprops'])
-        print('props_arr: ',props_arr.shape)
-        print('coords: ',coords.shape)
-
         # The modified version of the h5 to dataframe function that also processes the regionprops data
         coord_list = []
         regionprops_list = []
