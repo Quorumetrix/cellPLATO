@@ -89,7 +89,7 @@ def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,sh
 
 
 
-def plot_cell_trajectories(cell_df, dr_df, dr_method='tSNE',contour_scale=1/2,cmap_by=None):#'area'):
+def plot_cell_trajectories(cell_df, dr_df, dr_method='tSNE',contour_scale=1,cmap_by=None):#'area'):
 
     '''
     Compare cell trajectories through physical (xy) and Dimension Reduced (dr) space.
@@ -166,7 +166,7 @@ INCOMPLETE: Still need to colormap the trajectory segments AND contours by time.
 
     if 'label' in dr_df.columns:
 
-        print('Label included, drawing cluster hulls.')
+        # print('Label included, drawing cluster hulls.')
         draw_cluster_hulls(dr_df,cluster_by=dr_method,ax=ax3)
 
     ax3.plot(cell_df[x_lab],cell_df[y_lab],'-o',markersize=3,c='red')
@@ -208,13 +208,16 @@ INCOMPLETE: Still need to colormap the trajectory segments AND contours by time.
         # Need to cell contours to be centered on the cells position within the image
         x_dr = cell_df[x_lab].values[i] - x# - window / 2
         y_dr = cell_df[y_lab].values[i] - y# - window / 2
+        ax4.scatter(x=x+x_dr,y=y+y_dr,c='red', alpha=1, s=2)
 
         # Cell contour relative to tSNE positions
         if not np.isnan(np.sum(contour_arr)):
-            ax4.plot(x_dr+contour_arr[:,0],y_dr+contour_arr[:,1],'-o',markersize=1,c=this_colour)
+            ax4.plot((x_dr+contour_arr[:,0])*contour_scale,(y_dr+contour_arr[:,1])*contour_scale,'-o',markersize=1,c=this_colour)
+
+        return fig
 
 
-def visualize_cell_t_window(cell_df, dr_df, t, t_window, contour_list=None, dr_method='tSNE', cid='test', contour_scale=1/5,cmap_by = 'area'):
+def visualize_cell_t_window(cell_df, dr_df, t, t_window, contour_list=None, dr_method='tSNE', cid='test', contour_scale=1,cmap_by = 'area'):
 
     '''
 

@@ -115,6 +115,39 @@ class MetricsExplorer(param.Parameterized):
         return fig
 
 
+class LowDExplorer(param.Parameterized):
+
+    plot_by = param.Selector(['tSNE', 'umap'], default='umap')
+    cell_i = param.Integer(default=20, bounds=(1, 100))
+    contour_scale = param.Number(1.0,bounds=(0.2,5))
+
+    def __init__(self, df, mean_df, **kwargs):
+        super().__init__(**kwargs)
+        self.df = df
+        self.mean_df = mean_df
+
+    @param.depends('plot_by', 'cell_i', 'contour_scale')
+
+    def plot(self):
+        return self.get_plot()
+
+    def panel(self):
+        return pn.Row(self.param, self.plot)
+
+    def get_plot(self):
+
+        df = self.df
+        mean_df = self.mean_df
+
+        this_cell_df = get_specific_cell(mean_df, df,self.cell_i)
+
+        # get this cells id
+        this_cell_id = get_cell_id(this_cell_df)
+
+        fig = plot_cell_trajectories(this_cell_df, df, dr_method=self.plot_by,contour_scale=self.contour_scale)   # Recall contour_scale doing nothing
+
+        return fig
+
 
 class FilterExplorer(param.Parameterized):
 
