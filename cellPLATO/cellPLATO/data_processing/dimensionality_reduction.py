@@ -16,7 +16,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE as skTSNE
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 

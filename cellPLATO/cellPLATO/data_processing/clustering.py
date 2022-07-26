@@ -100,7 +100,7 @@ def hdbscan_clustering(df_in, min_cluster_size=20,cluster_by='tsne', plot=False,
         # save_path = CLUST_XY_DIR # Keep in root along with cluster_counts
         print('DBScan clustering by x,y position...')
 
-    elif (cluster_by == 'pca' or cluster_by == 'PCA'):
+    elif (cluster_by == 'pca' or cluster_by == 'PCA' or cluster_by == 'PCs'):
         x_name = 'PC1'
         y_name = 'PC2'
         # save_path = CLUST_PCA_DIR
