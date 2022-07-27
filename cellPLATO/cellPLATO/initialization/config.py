@@ -6,9 +6,9 @@ Experiment-specific constants
 
 
 INPUT_FMT = 'btrack' # 'usiigaci'#btrack
-MICRONS_PER_PIXEL = 1.22
+MICRONS_PER_PIXEL = 0.537
 TRACK_FILENAME = '.h5'
-Z_SCALE = 3.45
+Z_SCALE = 1.00
 CALIBRATED_POS = False
 
 
@@ -16,34 +16,38 @@ CALIBRATED_POS = False
 # Small test set of Btracker data
 #################
 
-DATA_PATH = 'Z://Collaboration_data/Mace_Lab/h5/20211019T170641Z'
-CTL_LABEL = 'Condition_Day0_Stablized WTEL08_B5'
-CONDITIONS_TO_INCLUDE = ['Condition_Day0_Stablized WTEL08_B5', 'Condition_Day7_Stablized WTEL08_B5']
-CONDITION_SHORTLABELS = ['WT Day 0', 'WT Day 7']
+DATA_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res/'
+CTL_LABEL = 'CAMWT_20x'
+CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
+CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
 USE_SHORTLABELS = True
-DATASET_SHORTNAME = 'consistency_test_btrack_v2'
+DATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20'
 SAMPLING_INTERVAL = 1 # time between frames
-IMAGE_HEIGHT = 400 # pixels
-IMAGE_WIDTH = 400 # pixels
-OVERWRITE = True # Overwrite the pre-processed data.
+IMAGE_HEIGHT = 1024 # pixels
+IMAGE_WIDTH = 1024 # pixels
+OVERWRITE = False # Overwrite the pre-processed data.
 
 USE_INPUT_REGIONPROPS = True
 CALCULATE_REGIONPROPS = False
-MICRONS_PER_PIXEL_LIST = [0.537,0.537]
+
+
+MICRONS_PER_PIXEL_LIST = [0.537,0.537, 0.107, 0.107]
 MICRONS_PER_PIXEL = MICRONS_PER_PIXEL_LIST[0] # Default value
-SAMPLING_INTERVAL_LIST= [1,1]
+SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
 SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
 
-MIXED_SCALING = False # Not used yet, for futureproofing
+
+
+MIXED_SCALING = True # Not used yet, for futureproofing
 SELF_STANDARDIZE = False
 FACTOR_TIMEAVERAGE = False
 
 # '''
 # Ultimate, high temporal resolution dataset
 # '''
-# #
+#
 # DATA_PATH = 'Z://Collaboration_data/Mace_Lab/ultimate_high_temp_res'
-# CTL_LABEL = 'untreated_day1'
+# CTL_LABEL = 'Condition_ICAM_nochemokine_day2_cp_masks'
 # CONDITIONS_TO_INCLUDE = ['untreated_day1', 'untreated_day2','cytoD40uM_day1','cytoD40uM_day2']
 # CONDITION_SHORTLABELS = ['ctl_day1', 'ctl_day2', 'cytoD_day1', 'cytoD_day2']
 # USE_SHORTLABELS = True
@@ -105,7 +109,7 @@ FACTOR_TIMEAVERAGE = False
 '''
 Non-experiment specific constants
 '''
-OUTPUT_PATH = 'Z://Collaboration_data/Mace_Lab/my_generated/cellPLATO(dev)/'
+OUTPUT_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res_July20OUTPUT/'
 
 CLUSTER_CMAP = 'tab20'
 CONDITION_CMAP = 'viridis'
@@ -118,7 +122,6 @@ STATIC_PLOTS = True
 PLOTS_IN_BROWSER = False
 
 ANIMATE_TRAJECTORIES = True
-
 DEBUG = False
 
 #tSNE parameters and embedding:
@@ -226,14 +229,13 @@ FACTOR_PAIRS = [['tSNE1', 'tSNE2'],
 
 DR_FACTORS = REGIONPROPS_LIST + MIG_FACTORS + ADDITIONAL_FACTORS
 # Numerical factors for plotting.
-NUM_FACTORS = DR_FACTORS + ['tSNE1', 'tSNE2', 'UMAP1', 'UMAP2','PC1', 'PC2']
+NUM_FACTORS = DR_FACTORS + ['tSNE1', 'tSNE2', 'PC1', 'PC2']
 
 # Optionally define your data filters here.
 DATA_FILTERS = {
-  # "tSNE1": (-200,200),
-  # "tSNE2": (-200,200),
-  #"speed": (5, 50),
-  # "euclidean_dist": (1, 10000) # np.inf not imported
+  "area": (0, 10000), # Warning: range will change if self-normalized
+  "ntpts": (0,1000)
+
 }
 
 T_WIND_DR_FACTORS = ['MSD',

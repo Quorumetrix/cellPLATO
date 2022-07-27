@@ -427,6 +427,10 @@ def dr_contour_matrix(df_in,n_grid_pts=10, dr_method='tSNE', t_window=None):
                 # Draw also the contour of the cell in this space.
                 plt.plot(x_dr+traj_arr[:,0],y_dr+traj_arr[:,1],'-o',markersize=1,c=this_colour)
 
+    if STATIC_PLOTS:
+
+        plt.savefig(DR_DIR + dr_method + '_contour_matrix.png', format='png', dpi=600)
+
 
 
 
@@ -495,5 +499,14 @@ def dimension_reduction_subplots(dr_df,pca_tuple, cmap = 'rgb'):
     ax4.scatter(x=dr_df['UMAP1'],y=dr_df['UMAP2'], s=2, c=pc_colors)
     ax4.set_xlabel('UMAP1')
     ax4.set_ylabel('UMAP2')
+
+
+
+    if STATIC_PLOTS:
+
+        plt.savefig(DR_DIR + '\dr_subplots.png', format='png', dpi=600)
+
+
+
 
     return fig

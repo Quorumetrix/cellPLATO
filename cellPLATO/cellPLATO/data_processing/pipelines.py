@@ -267,6 +267,7 @@ def comparative_visualization_pipeline(df, num_factors=NUM_FACTORS, factor_pairs
             print('Exporting static Timeplots')
             print('Time superplots..')
             time_superplot(df, factor)
+            timeplots_of_differences(df, factor=factor)
 
 
     if DRAW_MARGSCAT:

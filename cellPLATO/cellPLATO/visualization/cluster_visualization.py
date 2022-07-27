@@ -234,10 +234,19 @@ def draw_cluster_hulls(df_in, cluster_by=CLUSTER_BY, min_pts=5, color_by='cluste
     if(color_by=='condition' and draw_pts):
         # Draw the scatter points for the current cluster
         scatter = ax.scatter(x=df[x_name], y=df[y_name], s=0.3, c=df['Color'],cmap=CONDITION_CMAP)
+        # scatter = ax.scatter(x=df[x_name], y=df[y_name], s=0.3, c=df['Condition_shortlabel'].values,cmap=CONDITION_CMAP)
+
+        if(DEBUG):
+            print(list(df['Condition_shortlabel'].unique()))
+            print(scatter.legend_elements())
+            print(list(df['Color'].unique()))
+            print(categories)
 
         ''' Note: for some reason we cant get the conditions labels correctly on the legend.'''
-        legend1 = ax.legend(*scatter.legend_elements(),#labels=list(df['Condition_shortlabel'].unique()),
+        legend1 = ax.legend(*scatter.legend_elements(),labels=list(df['Condition_shortlabel'].unique()),
                             loc="upper right", title="Condition")
+
+
         ax.add_artist(legend1)
 
     elif(color_by=='PCs' and draw_pts):
@@ -301,7 +310,7 @@ def draw_cluster_hulls(df_in, cluster_by=CLUSTER_BY, min_pts=5, color_by='cluste
 
 
 
-def purity_plots(lab_dr_df, clust_sum_df,traj_clust_df,trajclust_sum_df,cluster_by=CLUSTER_BY):
+def purity_plots(lab_dr_df, clust_sum_df,traj_clust_df,trajclust_sum_df,cluster_by=CLUSTER_BY, save_path=CLUST_DIR ):
 
 
     if(cluster_by == 'tsne' or cluster_by == 'tSNE'):
@@ -458,5 +467,12 @@ def purity_plots(lab_dr_df, clust_sum_df,traj_clust_df,trajclust_sum_df,cluster_
 
     for ticklabel, tickcolor in zip(ax4.get_xticklabels(), cluster_colors):
         ticklabel.set_color(tickcolor)
+
+    if STATIC_PLOTS:
+        plt.savefig(save_path+'purity_plots'+cluster_by+'.png')
+    if PLOTS_IN_BROWSER:
+        plt.show()
+
+
 
     return fig
