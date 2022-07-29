@@ -140,7 +140,7 @@ def standardize_factors_per_cell(df_in, factor_list=['area', 'perimeter']):
 
 
 
-    def t_window_metrics(df_in, t_window=7,min_frames=5,factor_list=DR_FACTORS):
+    def t_window_metrics(df_in, t_window=MIG_T_WIND,min_frames=5,factor_list=DR_FACTORS):
 
         '''
         Create measurements average and ratio measurements for each.

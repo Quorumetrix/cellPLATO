@@ -231,7 +231,7 @@ def timeavg_mean_error(df, n_frames, factor, t_window=None, err_metric='sem'):
 
 def timeplot_sample(fig_data, factor, fac_array, n_frames, color_rgb, label):#, y_range=None):
 
-    t_vect = np.linspace(0,n_frames) * SAMPLING_INTERVAL
+    t_vect = np.linspace(0,n_frames,n_frames) * SAMPLING_INTERVAL
 
     # The plots with error bands are actually just 3 scatterplots
 
@@ -265,7 +265,8 @@ def timeplot_sample(fig_data, factor, fac_array, n_frames, color_rgb, label):#, 
     return fig_data
 
 
-def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
+
+def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath=TIMEPLOT_DIR):
 
     '''
     Convert a dataframe with a specified parameter into a plot that shows
@@ -278,7 +279,6 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     Returns:
         fig_data: Plotly graph data
     '''
-
     cond_grouping = 'Condition'
     rep_grouping = 'Replicate_ID'
 
@@ -291,7 +291,6 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     # Frames to be calculated ones for the whole set
     n_frames = int(np.max(df['frame']))
 
-
     # palette = 'tab10'
     colors = sns.color_palette(PALETTE, n_colors=len(df[cond_grouping].unique()))
     fig_data_list = []
@@ -299,6 +298,9 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     # Loop for each condition
     for i, cond in enumerate(df[cond_grouping].unique()):
 
+        # Update n_frames to current. Makes subplots autoscale to num timepts of that trace
+        sub_df = df[df[cond_grouping]==cond]
+        n_frames = int(np.max(sub_df['frame']))
 
         fac_array = timeavg_mean_error(df[df[cond_grouping]==cond], n_frames,factor,t_window)
 
@@ -317,17 +319,15 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
             rand_vect = np.random.normal(0, 0.10, 3) #(mu,sigma)
             this_color = np.clip(colors[i]+rand_vect, 0,1)
             this_color = np.around(this_color,decimals=4)
-            # fig2_data used previously when only 2 subplots were included.
-#             fig2_data = timeplot_sample(fig2_data, factor, fac_array, n_frames,
-#                            color_rgb = str(tuple(this_color)), label=rep)
+
             subfig_data = timeplot_sample(subfig_data, factor, fac_array, n_frames,
                            color_rgb = str(tuple(this_color)), label=rep)#,y_range=y_range)
 
         fig_data_list.append(subfig_data) #New suplot for each condition
 
-#     fig_data_list = []
+
     fig_data_list.append(fig1_data)
-#     fig_data_list.append(fig2_data)
+
 
     fig_subplots = make_subplots(
         rows=len(fig_data_list),
@@ -367,9 +367,31 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     # Specify axis labels
     fig['layout']['xaxis']['title']='Time (min)'
     fig['layout']['xaxis2']['title']='Time (min)'
+    fig['layout']['xaxis3']['title']='Time (min)'
+    fig['layout']['xaxis4']['title']='Time (min)'
+    fig['layout']['xaxis5']['title']='Time (min)'
     fig['layout']['yaxis']['title']= factor
     fig['layout']['yaxis2']['title']= factor
+    fig['layout']['yaxis3']['title']= factor
+    fig['layout']['yaxis4']['title']= factor
+    fig['layout']['yaxis5']['title']= factor
 
+    if x_range is not None:
+
+        # Ensure the subplots share the axis scale
+        fig.update_xaxes(range=x_range, row=1, col=1)
+        fig.update_xaxes(range=x_range, row=2, col=1)
+        fig.update_xaxes(range=x_range, row=3, col=1)
+        fig.update_xaxes(range=x_range, row=4, col=1)
+        fig.update_xaxes(range=x_range, row=5, col=1)
+    if y_range is not None:
+
+        # Ensure the subplots share the axis scale
+        fig.update_yaxes(range=y_range, row=1, col=1)
+        fig.update_yaxes(range=y_range, row=2, col=1)
+        fig.update_yaxes(range=y_range, row=3, col=1)
+        fig.update_yaxes(range=y_range, row=4, col=1)
+        fig.update_yaxes(range=y_range, row=5, col=1)
 
     if STATIC_PLOTS:
         fig.write_image(savepath+str(factor)+'_time_superplot.png')

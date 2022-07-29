@@ -22,6 +22,10 @@ CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
 CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
 USE_SHORTLABELS = True
 DATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20'
+# ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod1'
+# ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod2'
+# ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod3'
+
 SAMPLING_INTERVAL = 1 # time between frames
 IMAGE_HEIGHT = 1024 # pixels
 IMAGE_WIDTH = 1024 # pixels
@@ -36,7 +40,9 @@ MICRONS_PER_PIXEL = MICRONS_PER_PIXEL_LIST[0] # Default value
 SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
 SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
 
-
+# Timecourse analysis parameters
+FRAME_START = 0 # Start frame for analysis
+FRAME_END = 2400 # End frame for analysis
 
 MIXED_SCALING = True # Not used yet, for futureproofing
 SELF_STANDARDIZE = False
@@ -109,6 +115,11 @@ FACTOR_TIMEAVERAGE = False
 '''
 Non-experiment specific constants
 '''
+MIG_T_WIND = 8 # in frames
+# MIG_T_WIND = ?? * SAMPLING_INTERVAL ''' To convert into seconds'''
+
+MIN_CELLS_PER_TPT = 3 # used in: average_per_timepoint()
+
 OUTPUT_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res_July20OUTPUT/'
 
 CLUSTER_CMAP = 'tab20'
@@ -151,7 +162,7 @@ DIFF_PLOT_TYPE = 'violin' # 'swarm', 'violin', 'box'
 
 
 # Measurement constants
-ARREST_THRESHOLD = 2 # microns - distance per step for arrest coefficient. Default 2 microns
+ARREST_THRESHOLD = 2 * SAMPLING_INTERVAL# microns - distance per step for arrest coefficient. Default 2 microns
 RIP_R = 25 # Radius to search when calculating Ripleys K
 
 # Factor to standardize to themselves over time (to look at self-relative instead of absolute values.)
@@ -173,15 +184,12 @@ FACTORS_TO_CONVERT = ['area', 'bbox_area', 'equivalent_diameter', 'extent', 'fil
 
 
 
-# Timecourse analysis parameters
-FRAME_START = 0 # Start frame for analysis
-FRAME_END = 50 # End frame for analysis
-MIN_CELLS_PER_TPT = 3 # used in: average_per_timepoint()
+
 
 
 # Cell migration factors calculated in migration_calcs()
-MIG_FACTORS = ['euclidean_dist',
-                'cumulative_length',
+MIG_FACTORS = ['euclidean_dist',     # Valid?
+                'cumulative_length', # Valid?
                 'speed',
                 'orientedness', # name changed from orientation
                 'directedness',
@@ -189,8 +197,8 @@ MIG_FACTORS = ['euclidean_dist',
                 'endpoint_dir_ratio',
                 'dir_autocorr',
                 'outreach_ratio',
-                'MSD',
-                'max_dist',
+                'MSD',                # Valid?
+                'max_dist',           # Valid?
                 'glob_turn_deg',
                 'arrest_coefficient']
 

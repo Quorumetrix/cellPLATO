@@ -244,10 +244,16 @@ def comparative_visualization_pipeline(df, num_factors=NUM_FACTORS, factor_pairs
             print('Exporting Comparative bar charts... ')
             cond_stats = average_per_condition(tavg_df, avg_per_rep=False)
             comparative_bar(cond_stats, x='Condition', y=factor, to_plot='avg',title='_per_condition_')
-            comparative_bar(cond_stats, x='Condition', y=factor, to_plot='n',title='_per_condition_')
+
             rep_stats = average_per_condition(tavg_df, avg_per_rep=True)
             comparative_bar(rep_stats, x='Replicate_ID', y=factor, to_plot='avg', title='_per_replicate_')
-            comparative_bar(rep_stats, x='Replicate_ID', y=factor, to_plot='n', title='_per_replicate_')
+
+
+            # Make sure to only output the N's once:
+            if factor == 'area':
+                comparative_bar(cond_stats, x='Condition', y=factor, to_plot='n',title='_per_condition_')
+                comparative_bar(rep_stats, x='Replicate_ID', y=factor, to_plot='n', title='_per_replicate_')
+
 
 
         if DRAW_SUPERPLOTS:

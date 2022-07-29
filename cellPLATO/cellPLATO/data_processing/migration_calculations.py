@@ -8,7 +8,7 @@ import pandas as pd
 
 from tqdm import tqdm
 
-def cell_calcs(cell_tarray, t_window=8):#, calibrate):
+def cell_calcs(cell_tarray, t_window=MIG_T_WIND):#, calibrate):
 
     '''
     Cell migration calculations for a given cell through time.
