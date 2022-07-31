@@ -15,28 +15,28 @@ CALIBRATED_POS = False
 ##################
 # Small test set of Btracker data
 #################
-
-DATA_PATH = 'Z://Collaboration_data/Mace_Lab/h5/20211019T170641Z'
-CTL_LABEL = 'Condition_Day0_Stablized WTEL08_B5'
-CONDITIONS_TO_INCLUDE = ['Condition_Day0_Stablized WTEL08_B5', 'Condition_Day7_Stablized WTEL08_B5']
-CONDITION_SHORTLABELS = ['WT Day 0', 'WT Day 7']
-USE_SHORTLABELS = True
-DATASET_SHORTNAME = 'consistency_test_btrack_v2'
-SAMPLING_INTERVAL = 1 # time between frames
-IMAGE_HEIGHT = 400 # pixels
-IMAGE_WIDTH = 400 # pixels
-OVERWRITE = True # Overwrite the pre-processed data.
-
-USE_INPUT_REGIONPROPS = True
-CALCULATE_REGIONPROPS = False
-MICRONS_PER_PIXEL_LIST = [0.537,0.537]
-MICRONS_PER_PIXEL = MICRONS_PER_PIXEL_LIST[0] # Default value
-SAMPLING_INTERVAL_LIST= [1,1]
-SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
-
-MIXED_SCALING = False # Not used yet, for futureproofing
-SELF_STANDARDIZE = False
-FACTOR_TIMEAVERAGE = False
+#
+# DATA_PATH = 'Z://Collaboration_data/Mace_Lab/h5/20211019T170641Z'
+# CTL_LABEL = 'Condition_Day0_Stablized WTEL08_B5'
+# CONDITIONS_TO_INCLUDE = ['Condition_Day0_Stablized WTEL08_B5', 'Condition_Day7_Stablized WTEL08_B5']
+# CONDITION_SHORTLABELS = ['WT Day 0', 'WT Day 7']
+# USE_SHORTLABELS = True
+# DATASET_SHORTNAME = 'consistency_test_btrack_v2'
+# SAMPLING_INTERVAL = 1 # time between frames
+# IMAGE_HEIGHT = 400 # pixels
+# IMAGE_WIDTH = 400 # pixels
+# OVERWRITE = True # Overwrite the pre-processed data.
+#
+# USE_INPUT_REGIONPROPS = True
+# CALCULATE_REGIONPROPS = False
+# MICRONS_PER_PIXEL_LIST = [0.537,0.537]
+# MICRONS_PER_PIXEL = MICRONS_PER_PIXEL_LIST[0] # Default value
+# SAMPLING_INTERVAL_LIST= [1,1]
+# SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
+#
+# MIXED_SCALING = False # Not used yet, for futureproofing
+# SELF_STANDARDIZE = False
+# FACTOR_TIMEAVERAGE = False
 
 # '''
 # Ultimate, high temporal resolution dataset
@@ -71,31 +71,31 @@ FACTOR_TIMEAVERAGE = False
 ############
 # # Mixed 20x - 100x (fixed temporal resolution, changew in spatial resolution)
 ############
-# DATA_PATH = 'Z://Collaboration_data/Mace_Lab/20x_100x/20x_100x_high_temp_res'
-# CTL_LABEL = 'CAMWT_20x'
-# CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
-# CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
-# USE_SHORTLABELS = True
-#
-# DATASET_SHORTNAME = '20x_100x_hightr'
-# USE_INPUT_REGIONPROPS = True
-#
-# # These ones happen to be consistent now, but that could easily change...
-# IMAGE_HEIGHT = 1024 # pixels
-# IMAGE_WIDTH = 1024 # pixels
-#
-# # Params to change between 20x and 100x
-# MICRONS_PER_PIXEL = 0.107 # Known to be only half true ?????????
-# MICRONS_PER_PIXEL_LIST = [0.537,0.537, 0.107, 0.107]
-# SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
-# SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
-#
-# CALCULATE_REGIONPROPS = False
-# OVERWRITE = True # Overwrite the pre-processed data.
-#
-# MIXED_SCALING = True
-# SELF_STANDARDIZE = False
-# FACTOR_TIMEAVERAGE = False
+DATA_PATH = 'Z://Collaboration_data/Mace_Lab/20x_100x/20x_100x_high_temp_res'
+CTL_LABEL = 'CAMWT_20x'
+CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
+CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
+USE_SHORTLABELS = True
+
+DATASET_SHORTNAME = '20x_100x_hightr'
+USE_INPUT_REGIONPROPS = True
+
+# These ones happen to be consistent now, but that could easily change...
+IMAGE_HEIGHT = 1024 # pixels
+IMAGE_WIDTH = 1024 # pixels
+
+# Params to change between 20x and 100x
+MICRONS_PER_PIXEL = 0.107 # Known to be only half true ?????????
+MICRONS_PER_PIXEL_LIST = [0.537,0.537, 0.107, 0.107]
+SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
+SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
+
+CALCULATE_REGIONPROPS = False
+OVERWRITE = True # Overwrite the pre-processed data.
+
+MIXED_SCALING = True
+SELF_STANDARDIZE = False
+FACTOR_TIMEAVERAGE = False
 
 
 

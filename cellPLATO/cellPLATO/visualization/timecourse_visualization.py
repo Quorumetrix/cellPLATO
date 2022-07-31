@@ -230,7 +230,7 @@ def timeavg_mean_error(df, n_frames, factor, t_window=None, err_metric='sem'):
 
 def timeplot_sample(fig_data, factor, fac_array, n_frames, color_rgb, label):#, y_range=None):
 
-    t_vect = np.linspace(0,n_frames) * SAMPLING_INTERVAL
+    t_vect = np.linspace(0,n_frames,n_frames) * SAMPLING_INTERVAL
 
     # The plots with error bands are actually just 3 scatterplots
 
@@ -290,7 +290,6 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     # Frames to be calculated ones for the whole set
     n_frames = int(np.max(df['frame']))
 
-
     # palette = 'tab10'
     colors = sns.color_palette(PALETTE, n_colors=len(df[cond_grouping].unique()))
     fig_data_list = []
@@ -298,9 +297,11 @@ def time_superplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
     # Loop for each condition
     for i, cond in enumerate(df[cond_grouping].unique()):
 
+        # Update n_frames to current. Makes subplots autoscale to num timepts of that trace
+        sub_df = df[df[cond_grouping]==cond]
+        n_frames = int(np.max(sub_df['frame']))
 
         fac_array = timeavg_mean_error(df[df[cond_grouping]==cond], n_frames,factor,t_window)
-
         fig1_data = timeplot_sample(fig1_data, factor, fac_array, n_frames,
                        color_rgb = colors[i],label=cond)#,y_range=y_range)
 
