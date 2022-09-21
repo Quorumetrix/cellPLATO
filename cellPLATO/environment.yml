@@ -1,4 +1,4 @@
-name: cellPLATO_testJULY22
+name: cellPLATO_gitversion
 channels:
   - conda-forge
   - defaults

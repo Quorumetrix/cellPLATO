@@ -38,7 +38,9 @@ Any functions that mix these two submodules should be included here.
 def measurement_pipeline(comb_df, mixed=MIXED_SCALING):
 
     # Calculate the clusteredness in xy-space
-    comb_df = calc_ripleys_xy(comb_df, plot=False) #'''This is still done in pixels'''
+    if (PERFORM_RIPLEYS):
+        comb_df = calc_ripleys_xy(comb_df, plot=False) #'''This is still done in pixels'''
+
 
     # Calculate the cells aspect ratio
     calc_aspect_ratio(comb_df, drop=True)# if there are resulting nans

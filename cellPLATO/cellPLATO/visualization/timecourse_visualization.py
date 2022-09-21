@@ -369,12 +369,12 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
     fig['layout']['xaxis2']['title']='Time (min)'
     fig['layout']['xaxis3']['title']='Time (min)'
     fig['layout']['xaxis4']['title']='Time (min)'
-    fig['layout']['xaxis5']['title']='Time (min)'
+    # fig['layout']['xaxis5']['title']='Time (min)'
     fig['layout']['yaxis']['title']= factor
     fig['layout']['yaxis2']['title']= factor
     fig['layout']['yaxis3']['title']= factor
     fig['layout']['yaxis4']['title']= factor
-    fig['layout']['yaxis5']['title']= factor
+    # fig['layout']['yaxis5']['title']= factor
 
     if x_range is not None:
 
@@ -383,7 +383,7 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
         fig.update_xaxes(range=x_range, row=2, col=1)
         fig.update_xaxes(range=x_range, row=3, col=1)
         fig.update_xaxes(range=x_range, row=4, col=1)
-        fig.update_xaxes(range=x_range, row=5, col=1)
+        # fig.update_xaxes(range=x_range, row=5, col=1)
     if y_range is not None:
 
         # Ensure the subplots share the axis scale
@@ -391,7 +391,7 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
         fig.update_yaxes(range=y_range, row=2, col=1)
         fig.update_yaxes(range=y_range, row=3, col=1)
         fig.update_yaxes(range=y_range, row=4, col=1)
-        fig.update_yaxes(range=y_range, row=5, col=1)
+        # fig.update_yaxes(range=y_range, row=5, col=1)
 
     if STATIC_PLOTS:
         fig.write_image(savepath+str(factor)+'_time_superplot.png')
@@ -462,6 +462,9 @@ def timeplots_of_differences(df_in,factor='Value', ctl_label=CTL_LABEL,cust_txt=
     fig.update_layout(
         title_text=factor+ " difference as a function of time",
         autosize=True,
+        width=1000,
+        height=500,
+        font_size=28, #MJS made this change 8-24-2022
 #         width=1000,
 #         height=1000,
             xaxis_title= 'Time (minutes)',

@@ -16,17 +16,22 @@ CALIBRATED_POS = False
 # Small test set of Btracker data
 #################
 
-DATA_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res/'
-CTL_LABEL = 'CAMWT_20x'
-CONDITIONS_TO_INCLUDE = ['CAMWT_20x', 'CAMKO_20x','NK92WT_100x', 'NK92KO_100x']
-CONDITION_SHORTLABELS = ['WT_20x', 'KO_20x','WT_100x', 'KO_100x']
+DATA_PATH = 'D://Michael_Shannon/MartinezMaster/cellplato_analysis_20x_30mins_10secperframe_CD18_Fc_PLL_only/'
+CTL_LABEL = 'Condition_WT_PLL_20x'
+CONDITIONS_TO_INCLUDE = ['Condition_WT_PLL_20x', 'Condition_WT_FcCtrl_20x','Condition_WT_antiCD18_20x',
+'Condition_KO_PLL_20x', 'Condition_KO_FcCtrl_20x','Condition_KO_antiCD18_20x']
+
+CONDITION_SHORTLABELS = ['WT PLL', 'WT FcCtrl', 'WT antiCD18',
+'KO PLL', 'KO FcCtrl', 'KO antiCD18']
+
 USE_SHORTLABELS = True
-DATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20'
+PERFORM_RIPLEYS = True
+DATASET_SHORTNAME = 'MartinezMaster_paperdata20x_30mins_10secondstimepoints_CD18_Fc_PLL_only_9_13_2022'
 # ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod1'
 # ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod2'
 # ATASET_SHORTNAME = 'CellPlatoFigure_20x100x_July20_mod3'
 
-SAMPLING_INTERVAL = 1 # time between frames
+SAMPLING_INTERVAL = 10/60 # time between frames in minutes
 IMAGE_HEIGHT = 1024 # pixels
 IMAGE_WIDTH = 1024 # pixels
 OVERWRITE = False # Overwrite the pre-processed data.
@@ -35,16 +40,16 @@ USE_INPUT_REGIONPROPS = True
 CALCULATE_REGIONPROPS = False
 
 
-MICRONS_PER_PIXEL_LIST = [0.537,0.537, 0.107, 0.107]
+MICRONS_PER_PIXEL_LIST = [0.537,0.537,0.537,0.537,0.537,0.537]
 MICRONS_PER_PIXEL = MICRONS_PER_PIXEL_LIST[0] # Default value
-SAMPLING_INTERVAL_LIST= [1/60,1/60, 1/60,1/60]#[1,1, 1/60,1/60]
+SAMPLING_INTERVAL_LIST= [10/60,10/60,10/60,10/60,10/60,10/60]#[1,1, 1/60,1/60]
 SAMPLING_INTERVAL = SAMPLING_INTERVAL_LIST[0] # Default value
 
 # Timecourse analysis parameters
 FRAME_START = 0 # Start frame for analysis
-FRAME_END = 2400 # End frame for analysis
+FRAME_END = 180 # End frame for analysis
 
-MIXED_SCALING = True # Not used yet, for futureproofing
+MIXED_SCALING = False # Not used yet, for futureproofing
 SELF_STANDARDIZE = False
 FACTOR_TIMEAVERAGE = False
 
@@ -115,12 +120,12 @@ FACTOR_TIMEAVERAGE = False
 '''
 Non-experiment specific constants
 '''
-MIG_T_WIND = 8 # in frames
+MIG_T_WIND = 6 # in frames
 # MIG_T_WIND = ?? * SAMPLING_INTERVAL ''' To convert into seconds'''
 
-MIN_CELLS_PER_TPT = 3 # used in: average_per_timepoint()
+MIN_CELLS_PER_TPT = 1 # used in: average_per_timepoint()
 
-OUTPUT_PATH = 'D://Michael_Shannon/CELLPLATO2022_TESTING/20x_100x_high_temp_res_July20OUTPUT/'
+OUTPUT_PATH = 'MartinezMaster_paperdata20x_30mins_10secondstimepoints_CD18_Fc_PLL_only_9_13_2022_OUTPUT/'
 
 CLUSTER_CMAP = 'tab20'
 CONDITION_CMAP = 'viridis'
@@ -219,6 +224,7 @@ REGIONPROPS_LIST = ['area',
 
 
 # Additional factors calculated after the migration and segmentation
+# ADDITIONAL_FACTORS = ['aspect']
 ADDITIONAL_FACTORS = ['aspect', 'rip_p', 'rip_K', 'rip_L']
 
 # Pre-defined pairs of factors for generating comparison plots
@@ -241,8 +247,8 @@ NUM_FACTORS = DR_FACTORS + ['tSNE1', 'tSNE2', 'PC1', 'PC2']
 
 # Optionally define your data filters here.
 DATA_FILTERS = {
-  "area": (0, 10000), # Warning: range will change if self-normalized
-  "ntpts": (0,1000)
+  "area": (10, 10000), # Warning: range will change if self-normalized
+  "ntpts": (12,1800)
 
 }
 

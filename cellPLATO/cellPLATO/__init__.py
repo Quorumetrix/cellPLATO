@@ -19,7 +19,7 @@ from visualization.comparative_visualization import *
 from visualization.cluster_visualization import *
 from visualization.filter_visualization import *
 from visualization.low_dimension_visualization import *
-from visualization.panel_apps import *
+# from visualization.panel_apps import *
 from visualization.plots_of_differences import *
 from visualization.small_multiples import *
 from visualization.superplots import *

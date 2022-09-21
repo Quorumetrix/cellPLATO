@@ -198,7 +198,8 @@ def superplots_plotly(df_in, factor, t=FRAME_END, grid=False, save_path=SUPERPLO
                       title_text="Superplots: "+factor,
                       font=dict(
                           #family="Courier New, monospace",
-                          size=PLOT_TEXT_SIZE,
+                          size=28, #CHANGED BY MJS
+                          # size=PLOT_TEXT_SIZE,
                           color="Black"))
 
     # Show the axis frame, and optionally the grid
