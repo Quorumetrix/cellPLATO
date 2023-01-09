@@ -286,6 +286,7 @@ def count_cluster_changes(df):
             else:
                 uniq_id = cell_id
 
+
             # Calculate at the per-cell level
             s = cell_df['label']
             label_changes = (np.diff(s)!=0).sum() # Count the number of times it changes
@@ -297,7 +298,6 @@ def count_cluster_changes(df):
 
                 # Get the dataframe including all timepoints upto and including t
                 cumulative_df = cell_df[(cell_df['frame']<=t)]
-
                 # Count the label changes and total numbers.
                 s = cumulative_df['label']
                 label_changes = (np.diff(s)!=0).sum() # Count the number of times it changes
@@ -307,8 +307,23 @@ def count_cluster_changes(df):
     # Turn the lists to dataframes
     lab_list_tpt_df = pd.DataFrame(lab_list_tpt, columns=['Condition','Replicate', 'Cell_ID','frame', 'n_changes', 'n_labels'])
     lab_list_df = pd.DataFrame(lab_list, columns=['Condition','Replicate', 'Cell_ID', 'n_changes', 'n_labels'])
-
     assert len(lab_list_tpt_df.index) == len(df.index), 'Label count list doesnt add up'
+
+    # While the label list isthe same length, it's not sorted in the exact same way as the df input
+    # Because the list is created on a cell-by-cell basis
+
+    # Need to re-sort it by cell_id and frame
+    lab_list_tpt_df.sort_values(["Cell_ID", "frame"],
+               axis = 0, ascending = True,
+               inplace = True)
+
+    # Resort the main dataframe too to be sure they're aligned before contatenating
+    df.sort_values(["uniq_id", "frame"],
+               axis = 0, ascending = True,
+               inplace = True)
+
+    df.reset_index(inplace=True, drop=True)
+    lab_list_tpt_df.reset_index(inplace=True, drop=True)
 
     # Test that this lines up with the original dataframe
     for i in range(len(lab_list_tpt_df)):
@@ -319,12 +334,13 @@ def count_cluster_changes(df):
         rep_1 = df.iloc[i]['Replicate_ID']
         rep_2 = lab_list_tpt_df.iloc[i]['Replicate']
 
-        # id_1 = df.iloc[i]['particle']
-        # id_2 = lab_list_tpt_df.iloc[i]['Cell_ID']
+        id_1 = df.iloc[i]['uniq_id']
+        id_2 = lab_list_tpt_df.iloc[i]['Cell_ID']
 
         assert cond_1 == cond_2
         assert rep_1 == rep_2
-        # assert id_1 == id_2
+        assert id_1 == id_2
+
 
     # Insert the timepoint label counts back into the input dataframe
     new_df = pd.concat([df,lab_list_tpt_df[['n_changes','n_labels']]], axis=1)
