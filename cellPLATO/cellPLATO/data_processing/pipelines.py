@@ -142,6 +142,106 @@ def dr_pipeline(df, dr_factors=DR_FACTORS, dr_input='factors', tsne_perp=TSNE_PE
 
     return dr_df
 
+def dr_pipeline_dev(df, dr_factors=DR_FACTORS, dr_input='factors', tsne_perp=TSNE_PERP,umap_nn=UMAP_NN,min_dist=UMAP_MIN_DIST, n_components=N_COMPONENTS):
+
+
+    print('Running dr_pipeline...')
+    print('tSNE perplexity = ',tsne_perp)
+    print('UMAP nearest neighbors = ', umap_nn, ' min distance = ',min_dist)
+
+    # Prepare data for dimensionality reduction by extracting the factors of interest from the DR_FACTORS list.
+    x = get_data_matrix(df,dr_factors)
+
+    # Principal component analysis
+    pca_df, _, _ = do_pca(x)
+
+    if dr_input == 'factors':
+
+        g = StandardScaler().fit_transform(x)
+        x_ = MinMaxScaler().fit_transform(g)
+        print('Using standardized factors for dimensionality reduction, matrix shape: ', x_.shape)
+
+    elif dr_input == 'PCs':
+
+        x_ = pca_df.values
+        print('Using Principal Components for dimensionality reduction, matrix shape: ', x_.shape)
+
+    # openTSNE using default vaues
+    '''
+    This should be replaced by a version of tSNE that allows us to set
+    the perplexity value right here, or use the default.
+    Not just the default as currently.
+
+    Otherwsie need to use other function test_tsne()
+    '''
+    tsne_x, flag = do_open_tsne(x_,perplexity=tsne_perp)
+
+    # # openTSNE using default vaues (Previously...)
+    # tsne_x, flag = do_open_tsne(x)
+
+    # Format tSNE results into a dataframe
+    tsne_df = pd.DataFrame(data = tsne_x, columns = ['tSNE1', 'tSNE2','tSNE3', 'tSNE4','tSNE5'])
+    # tsne_df['used_existing'] = flag
+
+
+    # Use standrard scaler upstream of tSNE.
+    umap_x = do_umap(x_, n_neighbors=umap_nn, min_dist=min_dist, n_components=N_COMPONENTS)
+    umap_df = pd.DataFrame(data = umap_x, columns = ['UMAP1', 'UMAP2','UMAP3', 'UMAP4','UMAP5'])
+
+    # Create Dimension-reduced dataframe by adding PCA and tSNE columns.
+    dr_df = pd.concat([df,pca_df,tsne_df, umap_df], axis=1)
+
+    assert list(df.index) == list(dr_df.index), 'dr_df should be the same length as input dataframe. Check indexing of input dataframe.'
+
+    return dr_df
+
+def dr_pipeline_multiUMAPandTSNE(df, dr_factors=DR_FACTORS, tsne_perp=TSNE_PERP, umap_nn=UMAP_NN,min_dist=UMAP_MIN_DIST, n_components=N_COMPONENTS):
+
+    component_list=np.arange(1, n_components+1,1).tolist()
+    from sklearn.preprocessing import RobustScaler
+
+    umap_components=([f'UMAP{i}' for i in component_list])
+    # tsne_components=([f'tSNE{i}' for i in component_list])
+
+    print('Running dr_pipeline for multi dimension UMAP and tSNE...')
+    print('tSNE perplexity = ',tsne_perp)
+    print('UMAP nearest neighbors = ', umap_nn, ' min distance = ',min_dist)
+    print('Number of UMAP components = ', n_components)
+
+    # Prepare data for dimensionality reduction by extracting the factors of interest from the DR_FACTORS list.
+    # x = get_data_matrix(df,dr_factors)
+    print("DR factors used were" + str(dr_factors))
+    sub_df = df[dr_factors]
+    x= sub_df.values
+    # rs = RobustScaler(quantile_range=(0,95)) #Check usage of this scalar
+    ## THIS IS WHAT YOU HAD ##
+    # g = StandardScaler().fit_transform(x)
+    x_ = MinMaxScaler().fit_transform(x)
+    # Principal component analysis ?? Not needed here right now.
+    pca_df, _, _ = do_pca(x_)
+
+    print('Using standardized factors for dimensionality reduction, matrix shape: ', x_.shape)
+
+#     elif dr_input == 'PCs':
+
+#         x_ = pca_df.values
+#         print('Using Principal Components for dimensionality reduction, matrix shape: ', x_.shape)
+
+    # Do tSNE and insert into dataframe:
+    tsne_x, flag = do_open_tsne(x_,perplexity=tsne_perp)
+    tsne_df = pd.DataFrame(data = tsne_x, columns = ['tSNE1','tSNE2'])
+
+    # Do UMAP and insert into dataframe:
+    umap_x = do_umap(x_, n_neighbors=umap_nn, min_dist=min_dist, n_components=N_COMPONENTS)
+    umap_df = pd.DataFrame(data = umap_x, columns = umap_components)
+
+    # Create Dimension-reduced dataframe by adding PCA and tSNE columns.
+    dr_df = pd.concat([df, pca_df, tsne_df, umap_df], axis=1)
+
+    assert list(df.index) == list(dr_df.index), 'dr_df should be the same length as input dataframe. Check indexing of input dataframe.'
+
+    return dr_df
+
 
 
 
@@ -256,13 +356,22 @@ def comparative_visualization_pipeline(df, num_factors=NUM_FACTORS, factor_pairs
                 comparative_bar(cond_stats, x='Condition', y=factor, to_plot='n',title='_per_condition_')
                 comparative_bar(rep_stats, x='Replicate_ID', y=factor, to_plot='n', title='_per_replicate_')
 
-
+        if DRAW_SNS_BARPLOTS:
+            print('Exporting gray SNS barplots with points...')
+            comparative_SNS_bar(tavg_df, save_path=BAR_SNS_DIR)
 
         if DRAW_SUPERPLOTS:
             print('Exporting static Superplots...')
 
             # Time-averaged superplots
             superplots_plotly(tavg_df, factor, t='timeaverage')
+            # superplots(tavg_df,factor , t='timeaverage')
+
+        if DRAW_SUPERPLOTS_grays:
+            print('Exporting static gray Superplots...')
+
+            # Time-averaged superplots
+            superplots_plotly_grays(tavg_df, factor, t='timeaverage')
             # superplots(tavg_df,factor , t='timeaverage')
 
         if DRAW_DIFFPLOTS:
@@ -273,8 +382,9 @@ def comparative_visualization_pipeline(df, num_factors=NUM_FACTORS, factor_pairs
 
         if DRAW_TIMEPLOTS:
             print('Exporting static Timeplots')
-            print('Time superplots..')
-            time_superplot(df, factor)
+            # print('Time superplots..')
+            # time_superplot(df, factor)
+            multi_condition_timeplot(df, factor)
             timeplots_of_differences(df, factor=factor)
 
 

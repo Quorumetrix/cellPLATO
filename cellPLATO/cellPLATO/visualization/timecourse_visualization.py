@@ -266,6 +266,143 @@ def timeplot_sample(fig_data, factor, fac_array, n_frames, color_rgb, label):#, 
 
 
 
+def time_superplot_old(df, factor,x_range=None, y_range=None,t_window=None, savepath=TIMEPLOT_DIR):
+
+    '''
+    Convert a dataframe with a specified parameter into a plot that shows
+    that parameter changing over the course of the experiment.
+
+    Input:
+        df: DataFrame
+        factor: String: column title for the factor to be visualized.
+
+    Returns:
+        fig_data: Plotly graph data
+    '''
+    cond_grouping = 'Condition'
+    rep_grouping = 'Replicate_ID'
+
+    if(USE_SHORTLABELS):
+        cond_grouping = 'Condition_shortlabel'
+        rep_grouping = 'Replicate_shortlabel'
+
+    fig1_data = [] # Define as an empty list to add traces
+
+    # Frames to be calculated ones for the whole set
+    n_frames = int(np.max(df['frame']))
+
+    # palette = 'tab10'
+    colors = sns.color_palette(PALETTE, n_colors=len(df[cond_grouping].unique()))
+    fig_data_list = []
+
+    # Loop for each condition
+    for i, cond in enumerate(df[cond_grouping].unique()):
+
+        # Update n_frames to current. Makes subplots autoscale to num timepts of that trace
+        sub_df = df[df[cond_grouping]==cond]
+        n_frames = int(np.max(sub_df['frame']))
+
+        fac_array = timeavg_mean_error(df[df[cond_grouping]==cond], n_frames,factor,t_window)
+
+        fig1_data = timeplot_sample(fig1_data, factor, fac_array, n_frames,
+                       color_rgb = colors[i],label=cond)#,y_range=y_range)
+
+        subfig_data = []
+
+        # Each replicate from within that condition
+        for rep in df[df[cond_grouping]==cond][rep_grouping].unique():
+
+            fac_array = timeavg_mean_error(df[(df[cond_grouping]==cond)&(df[rep_grouping]==rep)],
+                                           n_frames,factor,t_window)
+
+            # Generate a slightly different random hue for each replicate.
+            rand_vect = np.random.normal(0, 0.10, 3) #(mu,sigma)
+            this_color = np.clip(colors[i]+rand_vect, 0,1)
+            this_color = np.around(this_color,decimals=4)
+
+            subfig_data = timeplot_sample(subfig_data, factor, fac_array, n_frames,
+                           color_rgb = str(tuple(this_color)), label=rep)#,y_range=y_range)
+
+        fig_data_list.append(subfig_data) #New suplot for each condition
+
+
+    fig_data_list.append(fig1_data)
+
+
+    fig_subplots = make_subplots(
+        rows=len(fig_data_list),
+        cols=1,
+#         shared_xaxes=True,
+#         row_heights=[1,3],
+
+        # You can define the subplot titles here:
+#         subplot_titles=['Time-averaged per condition', 'Time-averaged per replicate']
+        subplot_titles=list(df[cond_grouping].unique())+['Time-averaged per condition']
+
+    )
+
+    for i, subfig in enumerate(fig_data_list):
+
+        for sub_subfig in subfig:
+            fig_subplots.add_trace(sub_subfig,row=i+1, col=1)
+
+    fig = go.Figure(fig_subplots)
+
+    fig.update_layout(
+            title_text=factor+ " as a function of time",
+            autosize=False,
+            width=1000,
+            height=1500,
+#             xaxis_title= 'Time (min)',
+#             yaxis_title= factor,
+                legend=dict(
+                orientation="v",
+                yanchor="bottom",
+                y=0,#-0.4,
+                xanchor="left",
+                x=1,
+                traceorder='normal'
+            ))
+
+    # Specify axis labels
+    fig['layout']['xaxis']['title']='Time (min)'
+    fig['layout']['xaxis2']['title']='Time (min)'
+    fig['layout']['xaxis3']['title']='Time (min)'
+    # fig['layout']['xaxis4']['title']='Time (min)'
+    # fig['layout']['xaxis5']['title']='Time (min)'
+    fig['layout']['yaxis']['title']= factor
+    fig['layout']['yaxis2']['title']= factor
+    fig['layout']['yaxis3']['title']= factor
+    # fig['layout']['yaxis4']['title']= factor
+    # fig['layout']['yaxis5']['title']= factor
+
+    if x_range is not None:
+
+        # Ensure the subplots share the axis scale
+        fig.update_xaxes(range=x_range, row=1, col=1)
+        fig.update_xaxes(range=x_range, row=2, col=1)
+        fig.update_xaxes(range=x_range, row=3, col=1)
+        # fig.update_xaxes(range=x_range, row=4, col=1)
+        # fig.update_xaxes(range=x_range, row=5, col=1)
+    if y_range is not None:
+
+        # Ensure the subplots share the axis scale
+        fig.update_yaxes(range=y_range, row=1, col=1)
+        fig.update_yaxes(range=y_range, row=2, col=1)
+        fig.update_yaxes(range=y_range, row=3, col=1)
+        # fig.update_yaxes(range=y_range, row=4, col=1)
+        # fig.update_yaxes(range=y_range, row=5, col=1)
+
+    if STATIC_PLOTS:
+        fig.write_image(savepath+str(factor)+'_time_superplot.png')
+
+    if PLOTS_IN_BROWSER:
+
+        fig.show()
+
+    return fig
+
+### DEV this
 def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath=TIMEPLOT_DIR):
 
     '''
@@ -368,12 +505,12 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
     fig['layout']['xaxis']['title']='Time (min)'
     fig['layout']['xaxis2']['title']='Time (min)'
     fig['layout']['xaxis3']['title']='Time (min)'
-    fig['layout']['xaxis4']['title']='Time (min)'
+    # fig['layout']['xaxis4']['title']='Time (min)'
     # fig['layout']['xaxis5']['title']='Time (min)'
     fig['layout']['yaxis']['title']= factor
     fig['layout']['yaxis2']['title']= factor
     fig['layout']['yaxis3']['title']= factor
-    fig['layout']['yaxis4']['title']= factor
+    # fig['layout']['yaxis4']['title']= factor
     # fig['layout']['yaxis5']['title']= factor
 
     if x_range is not None:
@@ -382,7 +519,7 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
         fig.update_xaxes(range=x_range, row=1, col=1)
         fig.update_xaxes(range=x_range, row=2, col=1)
         fig.update_xaxes(range=x_range, row=3, col=1)
-        fig.update_xaxes(range=x_range, row=4, col=1)
+        # fig.update_xaxes(range=x_range, row=4, col=1)
         # fig.update_xaxes(range=x_range, row=5, col=1)
     if y_range is not None:
 
@@ -390,7 +527,7 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
         fig.update_yaxes(range=y_range, row=1, col=1)
         fig.update_yaxes(range=y_range, row=2, col=1)
         fig.update_yaxes(range=y_range, row=3, col=1)
-        fig.update_yaxes(range=y_range, row=4, col=1)
+        # fig.update_yaxes(range=y_range, row=4, col=1)
         # fig.update_yaxes(range=y_range, row=5, col=1)
 
     if STATIC_PLOTS:
@@ -402,7 +539,8 @@ def time_superplot(df, factor,x_range=None, y_range=None,t_window=None, savepath
 
     return fig
 
-def timeplots_of_differences(df_in,factor='Value', ctl_label=CTL_LABEL,cust_txt='', save_path=DIFFPLOT_DIR, t_window=None):
+
+def timeplots_of_differences(df_in,factor='Value', ctl_label=CTL_LABEL,cust_txt='', save_path=TIMEPLOT_DIR, t_window=None):
 
     ''' This import until they are both in the same script'''
 
@@ -486,6 +624,254 @@ def timeplots_of_differences(df_in,factor='Value', ctl_label=CTL_LABEL,cust_txt=
         fig.show()
 
     return fig
+
+
+#####
+
+def timeplots_of_difference_DEV(df_in,factor='Value', ctl_label=CTL_LABEL,cust_txt='', save_path=TIMEPLOT_DIR, t_window=None):
+
+    ''' This import until they are both in the same script'''
+
+    assert ctl_label in df_in['Condition'].values, ctl_label + ' is not in the list of conditions'
+    assert ctl_label != -1, 'Not yet adapted to compare between cluster groups, use plots_of_differences_plotly() instead'
+
+    df = df_in.copy()
+
+    cond_grouping = 'Condition'
+
+    # Sort values according to custom order for drawing plots onto graph
+    df[cond_grouping] = pd.Categorical(df[cond_grouping], CONDITIONS_TO_INCLUDE)
+    df.sort_values(by=cond_grouping, inplace=True, ascending=True)
+
+    # For each frame, do the bootstrapping calculations and add it to a list
+
+    frames = df['frame'].unique()
+
+    df_list = []
+    for frame in frames:
+
+        frame_df = df[df['frame'] == frame]
+
+        # Get the bootstrapped sample as a dataframe
+        bootstrap_diff_df = bootstrap_sample_df(frame_df,factor,ctl_label)
+
+        # Add frame and append this sub_df to the list.
+        bootstrap_diff_df['frame'] = frame
+        df_list.append(bootstrap_diff_df)
+
+    bootstrap_df = pd.concat(df_list)
+
+    if(USE_SHORTLABELS):
+
+        # Apply the shortlabels to the dataframe
+        replace_labels_shortlabels(bootstrap_df)
+
+    # Frames to be calculated ones for the whole set
+    n_frames = int(np.max(bootstrap_df['frame']))
+    fig1_data = []
+    # palette = 'tab10'
+    colors = sns.color_palette(PALETTE, n_colors=len(bootstrap_df[cond_grouping].unique()))
+
+    # Loop for each condition
+    for i, cond in enumerate(bootstrap_df[cond_grouping].unique()):
+
+
+        fac_array = timeavg_mean_error(bootstrap_df[bootstrap_df[cond_grouping]==cond], n_frames,
+                                       factor='Difference', err_metric='percentile',t_window=t_window)
+
+
+        fig1_data = timeplot_sample(fig1_data, factor, fac_array, n_frames,
+                       color_rgb = colors[i],label=cond)#,y_range=y_range)
+
+    fig = go.Figure(fig1_data)
+
+    fig.update_layout(
+        title_text=factor+ " difference as a function of time",
+        autosize=True,
+        width=1000,
+        height=500,
+        font_size=28, #MJS made this change 8-24-2022
+#         width=1000,
+#         height=1000,
+            xaxis_title= 'Time (minutes)',
+            yaxis_title= 'Difference',
+            legend=dict(
+            orientation="v",
+            yanchor="bottom",
+            y=0,#-0.4,
+            xanchor="left",
+            x=1,
+            traceorder='normal'
+        ))
+
+    if STATIC_PLOTS:
+        fig.write_image(save_path+str(factor)+'_diff_timeplot.png')
+
+    if PLOTS_IN_BROWSER:
+
+        fig.show()
+
+    return fig
+
+def multi_condition_timeplot(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
+
+    '''
+    Convert a dataframe with a specified parameter into a plot that shows
+    that parameter changing over the course of the experiment.
+
+    Input:
+        df: DataFrame
+        factor: String: column title for the factor to be visualized.
+
+    Returns:
+        fig_data: Plotly graph data
+    '''
+
+    cond_grouping = 'Condition'
+    rep_grouping = 'Replicate_ID'
+
+    if(USE_SHORTLABELS):
+        cond_grouping = 'Condition_shortlabel'
+        rep_grouping = 'Replicate_shortlabel'
+
+    fig1_data = [] # Define as an empty list to add traces
+
+    # Frames to be calculated ones for the whole set
+    n_frames = int(np.max(df['frame']))
+
+
+    # palette = 'tab10'
+    colors = sns.color_palette(PALETTE, n_colors=len(df[cond_grouping].unique()))
+    fig_data_list = []
+
+    # Loop for each condition
+    for i, cond in enumerate(df[cond_grouping].unique()):
+
+
+        fac_array = timeavg_mean_error(df[df[cond_grouping]==cond], n_frames,factor,t_window)
+
+        fig1_data = timeplot_sample(fig1_data, factor, fac_array, n_frames,
+                       color_rgb = colors[i],label=cond)
+
+    fig_data_list.append(fig1_data)
+
+    fig = go.Figure(fig1_data)
+
+
+#     fig = go.Figure(fig_subplots)
+# fig.update_layout(font_size=<VALUE>)
+    fig.update_layout(
+            title_text=factor+ " as a function of time",
+            autosize=False,
+            width=1000,
+            height=500,
+            font_size=28,
+
+                legend=dict(
+                orientation="v",
+                yanchor="bottom",
+                y=0,#-0.4,
+                xanchor="left",
+                x=1,
+                traceorder='normal'
+            ))
+
+    # Specify axis labels
+    fig['layout']['xaxis']['title']='Time (min)'
+#     fig['layout']['xaxis2']['title']='Time (min)'
+    fig['layout']['yaxis']['title']= factor
+#     fig['layout']['yaxis2']['title']= factor
+
+
+    if STATIC_PLOTS:
+        fig.write_image(savepath+str(factor)+'_timeplot_multi-condition.png')
+
+    if PLOTS_IN_BROWSER:
+
+        fig.show()
+
+    return fig
+
+def multi_condition_timeplot_DEV(df, factor,t_window=None, savepath=TIMEPLOT_DIR):
+
+    '''
+    Convert a dataframe with a specified parameter into a plot that shows
+    that parameter changing over the course of the experiment.
+
+    Input:
+        df: DataFrame
+        factor: String: column title for the factor to be visualized.
+
+    Returns:
+        fig_data: Plotly graph data
+    '''
+
+    cond_grouping = 'Condition'
+    rep_grouping = 'Replicate_ID'
+
+    if(USE_SHORTLABELS):
+        cond_grouping = 'Condition_shortlabel'
+        rep_grouping = 'Replicate_shortlabel'
+
+    fig1_data = [] # Define as an empty list to add traces
+
+    # Frames to be calculated ones for the whole set
+    n_frames = int(np.max(df['frame']))
+
+
+    # palette = 'tab10'
+    colors = sns.color_palette(PALETTE, n_colors=len(df[cond_grouping].unique()))
+    fig_data_list = []
+
+    # Loop for each condition
+    for i, cond in enumerate(df[cond_grouping].unique()):
+
+
+        fac_array = timeavg_mean_error(df[df[cond_grouping]==cond], n_frames,factor,t_window)
+
+        fig1_data = timeplot_sample(fig1_data, factor, fac_array, n_frames,
+                       color_rgb = colors[i],label=cond)
+
+    fig_data_list.append(fig1_data)
+
+    fig = go.Figure(fig1_data)
+
+
+#     fig = go.Figure(fig_subplots)
+# fig.update_layout(font_size=<VALUE>)
+    fig.update_layout(
+            title_text=factor+ " as a function of time",
+            autosize=False,
+            width=1000,
+            height=500,
+            font_size=28,
+
+                legend=dict(
+                orientation="v",
+                yanchor="bottom",
+                y=0,#-0.4,
+                xanchor="left",
+                x=1,
+                traceorder='normal'
+            ))
+
+    # Specify axis labels
+    fig['layout']['xaxis']['title']='Time (min)'
+#     fig['layout']['xaxis2']['title']='Time (min)'
+    fig['layout']['yaxis']['title']= factor
+#     fig['layout']['yaxis2']['title']= factor
+
+
+    if STATIC_PLOTS:
+        fig.write_image(savepath+str(factor)+'_timeplot_multi-condition.png')
+
+    if PLOTS_IN_BROWSER:
+
+        fig.show()
+
+    return fig
+
+
 
 def animate_t_window(cell_df, dr_df, dr_method='tSNE', cid='test'):
 

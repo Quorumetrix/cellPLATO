@@ -39,7 +39,7 @@ def format_for_superplots(df, metric, t, to_csv=False):
 
     return output_df
 
-def get_data_matrix(df, dr_factors=DR_FACTORS):
+def get_data_matrix(df, dr_factors=DR_FACTORS): #can deprecate as it is just a one liner
     '''
     input dataframe (df):
 

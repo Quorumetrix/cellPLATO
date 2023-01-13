@@ -44,7 +44,7 @@ def btrack_unpack(path):
         STC = True
 
     # Assert statements to make sure that our assumptions about the h5 file contents hold.
-    print('Something is up with', path)
+    print('Processing ', path)
     assert omap.shape[0] == len(np.unique(coords[:,0]))
     assert len(ttracks) == np.max(tmap), 'Invalid assumption linking tmap to ttrack'
     assert len(ttracks) == len(np.unique(ttracks)), 'Assumption that ttracks is a unique list is not valid'

@@ -232,7 +232,8 @@ def migration_calcs(df_in):#, calibrate=CALIBRATE_MIG):
 
     for cond in conditions:
 
-        cond_df = df_in[df_in['Condition'] == cond]
+        # cond_df = df_in[df_in['Condition'] == cond]
+        cond_df = df_out[df_out['Condition'] == cond]
 
         # If a combined dataframe is provided, it will have duplicate particle(cell)
         # numbers, therefore we must treat them separately

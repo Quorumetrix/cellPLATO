@@ -83,14 +83,21 @@ if PARAM_SWEEP and not os.path.exists(CLUST_PARAMS_DIR):
 
 # Sub folders for plot types (Comparative)
 SUPERPLOT_DIR = os.path.join(COMP_DIR,'Superplots/')
+SUPERPLOT_grays_DIR = os.path.join(COMP_DIR,'Superplots_grays/')
 DIFFPLOT_DIR = os.path.join(COMP_DIR,'Plots_of_differences/')
 MARGSCAT_DIR = os.path.join(COMP_DIR,'Marginal_scatterplots/')
 TIMEPLOT_DIR = os.path.join(COMP_DIR,'Timeplots/')
 BAR_DIR = os.path.join(COMP_DIR,'Bar_plots/')
+BAR_SNS_DIR = os.path.join(COMP_DIR,'SNS_Gray_Bar_plots/')
+
 
 if DRAW_SUPERPLOTS and not os.path.exists(SUPERPLOT_DIR):
     print('Exporting static Superplots')
     os.makedirs(SUPERPLOT_DIR)
+
+if DRAW_SUPERPLOTS_grays and not os.path.exists(SUPERPLOT_grays_DIR):
+    print('Exporting static Superplots')
+    os.makedirs(SUPERPLOT_grays_DIR)
 
 if DRAW_DIFFPLOTS and not os.path.exists(DIFFPLOT_DIR):
     print('Exporting static Plots of Differences')
@@ -108,12 +115,28 @@ if DRAW_BARPLOTS and not os.path.exists(BAR_DIR):
     print('Exporting Bar plots')
     os.makedirs(BAR_DIR)
 
+if DRAW_SNS_BARPLOTS and not os.path.exists(BAR_SNS_DIR):
+    print('Exporting SNS Bar plots')
+    os.makedirs(BAR_SNS_DIR)    
+
 
 # Create the folder where the subgroup cluster outputs will go:
 
 CLUST_TSNE_DIR = os.path.join(CLUST_DIR,'tSNE/')
 CLUST_PCA_DIR = os.path.join(CLUST_DIR,'PCA/')
 CLUST_XY_DIR = os.path.join(CLUST_DIR,'xy/')
+CLUST_DISAMBIG_DIR = os.path.join(CLUST_DIR,'Cluster_Disambiguation/')
+CLUST_DISAMBIG_DIR_WHOLETRACK = os.path.join(CLUST_DIR,'Cluster_Disambiguation_wholetrack/')
+CLUST_DEV_DIR = os.path.join(CLUST_DIR,'Clustering_dev/')
+
+if not os.path.exists(CLUST_DEV_DIR):
+     os.makedirs(CLUST_DEV_DIR)
+
+if not os.path.exists(CLUST_DISAMBIG_DIR):
+     os.makedirs(CLUST_DISAMBIG_DIR)
+
+if not os.path.exists(CLUST_DISAMBIG_DIR_WHOLETRACK):
+     os.makedirs(CLUST_DISAMBIG_DIR_WHOLETRACK)
 
 if CLUSTERING and CLUSTER_TSNE and not os.path.exists(CLUST_TSNE_DIR):
      os.makedirs(CLUST_TSNE_DIR)
@@ -123,6 +146,8 @@ if CLUSTERING and CLUSTER_PCA and not os.path.exists(CLUST_PCA_DIR):
 
 if CLUSTERING and CLUSTER_XY and not os.path.exists(CLUST_XY_DIR):
      os.makedirs(CLUST_XY_DIR)
+
+
 
 # Some assert statements as sanity checks:
 assert CTL_LABEL in CONDITIONS_TO_INCLUDE, 'Be sure that CTL_LABEL in config is within the CONDITIONS_TO_INCLUDE list'

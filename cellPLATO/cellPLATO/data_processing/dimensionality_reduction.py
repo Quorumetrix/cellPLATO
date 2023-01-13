@@ -41,7 +41,7 @@ import plotly.graph_objects as go
 UMAP functions
 '''
 
-def do_umap(x, n_neighbors=15, min_dist=0.1, n_components=2, metric='euclidean', plot=False):
+def do_umap(x, n_neighbors=15, min_dist=0.0, n_components=3, metric='euclidean', plot=False):
 
     reducer = umap.UMAP(n_neighbors=n_neighbors,
                         min_dist=min_dist,

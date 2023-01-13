@@ -324,6 +324,10 @@ def comparative_bar(df_tup, x, y, title='',  height=400, to_plot='avg',error='SE
         to_plot: str, what to plot: 'avg' or 'n'
         error: Measure of variance for error bars, str: SEM or STD
     '''
+    # This part extracts an sns colormap for use in plotly express ###
+
+    pal = sns.color_palette(CONDITION_CMAP) #extracts a colormap from the seaborn stuff.
+    cmap=pal.as_hex()[:] #outputs that as a hexmap which is compatible with plotlyexpress below
 
     # Split up the input tuple:(avg, std, n)
     df = df_tup[0]
@@ -365,13 +369,15 @@ def comparative_bar(df_tup, x, y, title='',  height=400, to_plot='avg',error='SE
     if(to_plot == 'avg'):
         # Plot the means between groups for this factor, between conditions and between replicates.
         fig = px.bar(df, x=x, y=y, color=color, height=height,
-                     color_discrete_sequence=eval(PX_COLORS),
+                     # color_discrete_sequence=eval(PX_COLORS),#cmap
+                     color_discrete_sequence=cmap,
                     error_y = y_error)
 
     elif(to_plot == 'n'):
 
         fig = px.bar(n_df, x=x, y=y, color=color, height=height,
-                     color_discrete_sequence=eval(PX_COLORS),
+                     # color_discrete_sequence=eval(PX_COLORS),
+                     color_discrete_sequence=cmap,
                      labels = dict(y="Number of cells"))
 
     if STATIC_PLOTS:
@@ -381,3 +387,46 @@ def comparative_bar(df_tup, x, y, title='',  height=400, to_plot='avg',error='SE
         fig.show()
 
     return fig
+
+def comparative_SNS_bar(df, save_path=BAR_SNS_DIR):
+    import seaborn as sns
+    whattoplot=ALL_FACTORS
+    CLUSTER_CMAP = 'tab20'
+    CONDITION_CMAP = 'dark'
+
+    colors = np.asarray(sns.color_palette('Greys', n_colors=6))
+    timestorepeat_in=(len(df['Condition'].unique()))/2
+    timestorepeat = (np.ceil(timestorepeat_in)).astype(int)
+    colors2=colors[2]
+    colors3=colors[4]
+    colors4=np.stack((colors2,colors3))
+    colors5 = np.tile(colors4,(timestorepeat,1))
+    colors=colors5
+
+    import seaborn as sns
+    sns.set_theme(style="ticks")
+    # sns.set_palette(CONDITION_CMAP)
+
+    x_lab = whattoplot
+    plottitle = ""
+
+    for factor in np.arange(len(whattoplot)):
+        # f, ax = plt.subplots(1, 1, figsize=(10, 10)) #sharex=True
+        f, ax = plt.subplots() #sharex=True
+        sns.barplot(ax=ax, x="Condition_shortlabel", y=whattoplot[factor], data=df, palette=colors,capsize=.2, dodge=False) #ci=85, # estimator=np.mean,
+        # sns.catplot(ax=ax, x="Condition_shortlabel", y=whattoplot[factor], data=df, palette=colors, kind="boxen") #errorbar=('ci', 95)
+        sns.stripplot(ax=ax, x="Condition_shortlabel", y=whattoplot[factor], data=df, size=5, color=".1",alpha = 0.6, linewidth=0, jitter=0.2)
+
+        ax.xaxis.grid(True)
+        ax.set(xlabel="")
+        ax.set_ylabel(whattoplot[factor], fontsize=36)
+        ax.set_title("", fontsize=36)
+        # ax.tick_params(axis='both', labelsize=36)
+        ax.tick_params(axis='y', labelsize=36)
+        ax.tick_params(axis='x', labelsize=12)
+        # f.tight_layout()
+        plt.setp(ax.patches, linewidth=3, edgecolor='k')
+    # fig.write_image(CLUST_DISAMBIG_DIR+'\cluster_label_counts.png')
+        f.savefig(save_path+str(whattoplot[factor])+'_gray_barplot.png', dpi=300)#plt.
+
+    return

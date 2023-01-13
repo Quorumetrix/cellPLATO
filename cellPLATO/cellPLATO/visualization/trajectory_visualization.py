@@ -23,18 +23,255 @@ plt.rcParams.update({
     "font.size": 12
 })
 
-def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
+# def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
+#     '''
+#     For a selected cell, at a selected step of its trajectory, make a plot
+#     '''
+#     # Using the same sample cell trajectory, print out some measurements
+#     fig, (ax) = plt.subplots(1,1)
+#     ax.title.set_text('Cell contour: xy space')
+#     ax.plot(cell_df['x_pix']*2,cell_df['y_pix']*2,'-o',markersize=3,c='black')
+#
+#
+#     contour_list = get_cell_contours(cell_df)
+#
+#     # Draw all contours faintly as image BG
+#     for i,contour in enumerate(contour_list):
+#
+#         rgb = np.random.rand(3,)
+#         this_colour = rgb#'red' # Eventually calculate color along colormap
+#         contour_arr = np.asarray(contour).T
+#
+#
+#         if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+#
+#             x = cell_df['x_pix'].values[i]# - window / 2
+#             y = cell_df['y_pix'].values[i]# - window / 2
+#
+#             # Cell contour relative to x,y positions
+#             '''Want to double check that the x,y positions not mirrored from the contour function'''
+#             ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+#
+#     # Draw this contour, highlighted.
+#     contour = contour_list[i_step]
+#     contour_arr = np.asarray(contour).T
+#     x = cell_df['x_pix'].values[i_step]# - window / 2
+#     y = cell_df['y_pix'].values[i_step]# - window / 2
+#
+#     # Cell contour relative to x,y positions
+#     '''Want to double check that the x,y positions not mirrored from the contour function'''
+#     if not np.isnan(np.sum(contour_arr)):
+#         ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
+#
+#         # Current segment
+#         if i_step > 0:
+#             x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+#             y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+#             # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+#             ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+#
+#     text_x = x*2 # Still a magic number, replace with calibration value ??
+#     text_y = y*2 # Still a magic number, replace with calibration value ??
+#
+#
+#
+#     for n, fac in enumerate(mig_display_factors):
+#
+#         ax.text(text_x + 10,text_y +2 +  n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:blue', fontsize=10)
+#
+#     for n, fac in enumerate(shape_display_factors):
+#
+#         ax.text(text_x + 10, text_y - 2 - n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:orange', fontsize=10)
+#
+#     return fig
+
+# def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS): #Deprecated dev version
+#     '''
+#     For a selected cell, at a selected step of its trajectory, make a plot
+#     '''
+#     # Using the same sample cell trajectory, print out some measurements
+#     fig, (ax) = plt.subplots(1,1)
+#     ax.title.set_text('Cell contour: xy space')
+#     ax.plot(cell_df['x_pix']*2,cell_df['y_pix']*2,'-o',markersize=3,c='black')
+#
+#
+#     contour_list = get_cell_contours(cell_df)
+#
+#     # Draw all contours faintly as image BG
+#     for i,contour in enumerate(contour_list):
+#
+#         rgb = np.random.rand(3,)
+#         this_colour = rgb#'red' # Eventually calculate color along colormap
+#         contour_arr = np.asarray(contour).T
+#
+#
+#         if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+#
+#             x = cell_df['x_pix'].values[i]# - window / 2
+#             y = cell_df['y_pix'].values[i]# - window / 2
+#
+#             # Cell contour relative to x,y positions
+#             '''Want to double check that the x,y positions not mirrored from the contour function'''
+#             ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+#
+#     # Draw this contour, highlighted.
+#     contour = contour_list[i_step]
+#     contour_arr = np.asarray(contour).T
+#     x = cell_df['x_pix'].values[i_step]# - window / 2
+#     y = cell_df['y_pix'].values[i_step]# - window / 2
+#
+#     # Cell contour relative to x,y positions
+#     '''Want to double check that the x,y positions not mirrored from the contour function'''
+#     if not np.isnan(np.sum(contour_arr)):
+#         ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
+#
+#         # Current segment
+#         if i_step > 0:
+#             x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+#             y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+#             # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+#             ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+#
+#     text_x = x*2 # Still a magic number, replace with calibration value ??
+#     text_y = y*2 # Still a magic number, replace with calibration value ??
+#
+#
+#
+#     for n, fac in enumerate(mig_display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+#
+#         ax.text(text_x + 60,text_y +10 +  (n*10), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:blue', fontsize=30,size = 36)
+#
+#
+#     for n, fac in enumerate(shape_display_factors):
+#
+#         ax.text(text_x + 60,text_y -  (n*10), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:orange', fontsize=30,size = 36)
+#
+#     # General plot improvements
+#     plottitle="Cluster ID: " + str(cell_df['label'].iloc[0])
+#     ax.set_title(plottitle, fontsize=36)
+#     ax.set_xlabel('x (microns)', fontsize=36)
+#     ax.set_ylabel("y (microns)", fontsize=36)
+#     ax.tick_params(axis='both', labelsize=36)
+#     # sns.despine(left=True)
+#
+#     # ax.set_yticklabels(['eNK','eNK+CytoD'])
+#     return fig
+### Old function now deprecated
+
+# def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
+#     '''
+#     For a selected cell, at a selected step of its trajectory, make a plot
+#     '''
+#     # Using the same sample cell trajectory, print out some measurements
+#     fig, (ax) = plt.subplots(1,1)
+#
+#     ax.title.set_text('Cell contour: xy space')
+#     ax.plot(cell_df['x_pix']*2,cell_df['y_pix']*2,'-o',markersize=3,c='black')
+#
+#
+#     contour_list = get_cell_contours(cell_df)
+#
+#     # Draw all contours faintly as image BG
+#     for i,contour in enumerate(contour_list):
+#
+#         rgb = np.random.rand(3,)
+#         this_colour = rgb#'red' # Eventually calculate color along colormap
+#         contour_arr = np.asarray(contour).T
+#
+#
+#         if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+#
+#             x = cell_df['x_pix'].values[i]# - window / 2
+#             y = cell_df['y_pix'].values[i]# - window / 2
+#
+#             # Cell contour relative to x,y positions
+#             '''Want to double check that the x,y positions not mirrored from the contour function'''
+#             ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+#
+#     # Draw this contour, highlighted.
+#     contour = contour_list[i_step]
+#     contour_arr = np.asarray(contour).T
+#     x = cell_df['x_pix'].values[i_step]# - window / 2
+#     y = cell_df['y_pix'].values[i_step]# - window / 2
+#
+#     # Cell contour relative to x,y positions
+#     '''Want to double check that the x,y positions not mirrored from the contour function'''
+#     if not np.isnan(np.sum(contour_arr)):
+#         ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
+#
+#         # Current segment
+#         if i_step > 0:
+#             x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+#             y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+#             # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+#             ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+#
+#     text_x = x*2 # Still a magic number, replace with calibration value ??
+#     text_y = y*2 # Still a magic number, replace with calibration value ??MICRONS_PER_PIXEL
+#     # text_x = x*MICRONS_PER_PIXEL # Still a magic number, replace with calibration value ??
+#     # text_y = y*MICRONS_PER_PIXEL # Still a magic number, replace with calibration value ??MICRONS_PER_PIXEL
+#
+#
+#
+#     for n, fac in enumerate(mig_display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+#
+#         ax.text(text_x + 60,text_y +10 +  (n*10), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:blue', fontsize=30,size = 36)
+#
+#
+#     for n, fac in enumerate(shape_display_factors):
+#
+#         ax.text(text_x + 60,text_y -  (n*10), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+#                 color='tab:orange', fontsize=30,size = 36)
+#
+#     # General plot improvements
+#     plottitle="Condition:" + cell_df['Condition_shortlabel'].iloc[i_step] + "  Cluster ID: " + str(cell_df['label'].iloc[i_step]) #"Condition:" + str(cell_df['Condition_shortlabel'].iloc[i_step] +
+#     ax.set_title(plottitle, fontsize=36)
+#     ax.set_xlabel('x (px)', fontsize=36)
+#     ax.set_ylabel("y (px)", fontsize=36)
+#     ax.tick_params(axis='both', labelsize=36)
+#     ax.set_aspect('equal')
+#     ax.set_adjustable("datalim")
+#     # plt.autoscale()
+#     # sns.despine(left=True)
+#
+#     # ax.set_yticklabels(['eNK','eNK+CytoD'])
+#     return fig #delete?
+##### New function 12-7-2022 #####
+def plot_cell_metrics_DEPRECATED(cell_df, i_step,XYRange,boxoff, mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
     '''
     For a selected cell, at a selected step of its trajectory, make a plot
     '''
     # Using the same sample cell trajectory, print out some measurements
     fig, (ax) = plt.subplots(1,1)
-    ax.title.set_text('Cell contour: xy space')
-    ax.plot(cell_df['x_pix']*2,cell_df['y_pix']*2,'-o',markersize=3,c='black')
 
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['Arial'] + plt.rcParams['font.serif'] #Times New Roman
+    plt.rcParams['mathtext.default'] = 'regular'
+
+    ax.title.set_text('Cell contour: xy space')
+    ax.plot(cell_df['x_pix'],cell_df['y_pix'],'-o',markersize=3,c='black')
+
+    ################
+    xminimum=cell_df['x_pix'].min()
+    xmaximum=cell_df['x_pix'].max()
+    xmid = np.median([xmaximum, xminimum])
+    xmin=xmid-XYRange/2
+    xmax=xmid+XYRange/2
+
+    yminimum=cell_df['y_pix'].min()
+    ymaximum=cell_df['y_pix'].max()
+    ymid = np.median([ymaximum, yminimum])
+    ymin=ymid-XYRange/2
+    ymax=ymid+XYRange/2
+
+    #######################
 
     contour_list = get_cell_contours(cell_df)
-
     # Draw all contours faintly as image BG
     for i,contour in enumerate(contour_list):
 
@@ -47,10 +284,9 @@ def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,sh
 
             x = cell_df['x_pix'].values[i]# - window / 2
             y = cell_df['y_pix'].values[i]# - window / 2
-
             # Cell contour relative to x,y positions
             '''Want to double check that the x,y positions not mirrored from the contour function'''
-            ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+            ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
 
     # Draw this contour, highlighted.
     contour = contour_list[i_step]
@@ -61,34 +297,760 @@ def plot_cell_metrics(cell_df, i_step,mig_display_factors=MIG_DISPLAY_FACTORS,sh
     # Cell contour relative to x,y positions
     '''Want to double check that the x,y positions not mirrored from the contour function'''
     if not np.isnan(np.sum(contour_arr)):
-        ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
+        ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
 
         # Current segment
         if i_step > 0:
             x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
             y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
             # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
-            ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+            # ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+            ax.plot(x_seg,y_seg,'-o',markersize=10,c='tab:blue', linewidth=4)
 
-    text_x = x*2 # Still a magic number, replace with calibration value ??
-    text_y = y*2 # Still a magic number, replace with calibration value ??
+    text_x = xmid
+    text_y = ymid
 
+    for n, fac in enumerate(mig_display_factors): #Positioning is currently relative to data. Can it be relative to plot?
 
+        ax.text(text_x + 0.6*XYRange,text_y + (0.08*XYRange) + (n*(0.08*XYRange)), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'), #These weird numbers were worked out manually
+                color='tab:blue', fontsize=30,size = 36, fontdict = None)
 
-    for n, fac in enumerate(mig_display_factors):
-
-        ax.text(text_x + 10,text_y +2 +  n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
-                color='tab:blue', fontsize=10)
 
     for n, fac in enumerate(shape_display_factors):
 
-        ax.text(text_x + 10, text_y - 2 - n, fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
-                color='tab:orange', fontsize=10)
+        ax.text(text_x + 0.6*XYRange,text_y -  (n*(0.08*XYRange)), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+                color='tab:orange', fontsize=30,size = 36, fontdict = None)
 
-    return fig
+    # General plot improvements
+    plottitle="Cluster ID: " + str(cell_df['label'].iloc[i_step]) + " (condition: " + cell_df['Condition_shortlabel'].iloc[i_step] + ")"
+    ax.set_title(plottitle, fontname="Arial",fontsize=30)
+    ax.set_xlabel('x (px)', fontname="Arial",fontsize=30)
+    ax.set_ylabel("y (px)", fontname="Arial",fontsize=30)
+    ax.tick_params(axis='both', labelsize=30)
+    ax.set_aspect('equal')
+    ax.set_adjustable("datalim")
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+
+    if boxoff:
+        ax.axis('off')
+
+    # plt.autoscale()
+    # sns.despine(left=True)
+
+    # ax.set_yticklabels(['eNK','eNK+CytoD'])
+    return fig #delete?
+
+def plot_cell_metrics_timepoint(cell_df, i_step, XYRange,boxoff, top_dictionary, Cluster_ID, mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS):
+    '''
+    For a selected cell, at a selected step of its trajectory, make a plot
+    '''
+    # Using the same sample cell trajectory, print out some measurements
+    fig, (ax) = plt.subplots(1,1)
+    # print(top_dictionary)
+
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['Arial'] + plt.rcParams['font.serif'] #Times New Roman
+    plt.rcParams['mathtext.default'] = 'regular'
+
+    ax.title.set_text('Cell contour: xy space')
+    ax.plot(cell_df['x_pix'],cell_df['y_pix'],'-o',markersize=3,c='black')
+
+    ################
+    xminimum=cell_df['x_pix'].min()
+    xmaximum=cell_df['x_pix'].max()
+    xmid = np.median([xmaximum, xminimum])
+    xmin=xmid-XYRange/2
+    xmax=xmid+XYRange/2
+
+    yminimum=cell_df['y_pix'].min()
+    ymaximum=cell_df['y_pix'].max()
+    ymid = np.median([ymaximum, yminimum])
+    ymin=ymid-XYRange/2
+    ymax=ymid+XYRange/2
+
+    #######################
+
+    contour_list = get_cell_contours(cell_df)
+    # Draw all contours faintly as image BG
+    for i,contour in enumerate(contour_list):
+
+        rgb = np.random.rand(3,)
+        this_colour = rgb#'red' # Eventually calculate color along colormap
+        contour_arr = np.asarray(contour).T
+
+
+        if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+
+            x = cell_df['x_pix'].values[i]# - window / 2
+            y = cell_df['y_pix'].values[i]# - window / 2
+            # Cell contour relative to x,y positions
+            '''Want to double check that the x,y positions not mirrored from the contour function'''
+            ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+
+    # Draw this contour, highlighted.
+    contour = contour_list[i_step]
+    contour_arr = np.asarray(contour).T
+    x = cell_df['x_pix'].values[i_step]# - window / 2
+    y = cell_df['y_pix'].values[i_step]# - window / 2
+
+    # Cell contour relative to x,y positions
+    '''Want to double check that the x,y positions not mirrored from the contour function'''
+    if not np.isnan(np.sum(contour_arr)):
+        ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='tab:orange',linewidth=5, alpha=1)
+
+        # Current segment
+        if i_step > 0:
+            x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+            y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+            # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+            # ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+            ax.plot(x_seg,y_seg,'-o',markersize=10,c='tab:blue', linewidth=4)
+
+    text_x = xmid
+    text_y = ymid
+    # SPIDER #
+    # p=cell_df.iloc[i_step]
+    # ClusterID = cell_df['label'].iloc[i_step]
+    # print('TRYING TO MAKE THIS A CLUSTER ID TO USE ON THE DICTIONARY >>>>>>>>' )
+    # display(ClusterID)
+    # # ClusterID=p['label']
+    # print(row['label']) #here, the row label is something different
+    # ClusterID = row['label']
+    display_factors = top_dictionary[Cluster_ID]
+    # You want the list of factors in top_dictionary that relates to the cluster in question.
+    # IN this case, the cluster in question is the one at iloc[i_step]
+
+    for n, fac in enumerate(display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+
+        ax.text(text_x + 0.6*XYRange,text_y + (0.08*XYRange) + (n*(0.08*XYRange)), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'), #These weird numbers were worked out manually
+                color='tab:blue', fontsize=30,size = 30, fontdict = None)
+
+
+    # for n, fac in enumerate(shape_display_factors):
+    #
+    #     ax.text(text_x + 0.6*XYRange,text_y -  (n*(0.08*XYRange)), fac +': '+ format(cell_df.iloc[i_step][fac], '.1f'),
+    #             color='tab:orange', fontsize=30,size = 36, fontdict = None)
+
+    # General plot improvements
+    plottitle="Cluster ID: " + str(cell_df['label'].iloc[i_step]) + " (condition: " + cell_df['Condition_shortlabel'].iloc[i_step] + ")"
+    ax.set_title(plottitle, fontname="Arial",fontsize=30)
+    ax.set_xlabel('x (px)', fontname="Arial",fontsize=30)
+    ax.set_ylabel("y (px)", fontname="Arial",fontsize=30)
+    ax.tick_params(axis='both', labelsize=30)
+    ax.set_aspect('equal')
+    ax.set_adjustable("datalim")
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+
+    if boxoff:
+        ax.axis('off')
+
+    # plt.autoscale()
+    # sns.despine(left=True)
+
+    # ax.set_yticklabels(['eNK','eNK+CytoD'])
+    return fig #delete?
+
+
+#### DEV FUNCTION FOLLOWS:
+
+def plot_cell_metrics_wholetrack_DEPRECATED(cell_df, XYRange,boxoff, row, mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS): #removed the i_step
+    '''
+    For a selected cell, at a selected step of its trajectory, make a plot
+    '''
+    # Using the same sample cell trajectory, print out some measurements
+    fig, (ax) = plt.subplots(1,1)
+
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['Arial'] + plt.rcParams['font.serif'] #Times New Roman
+    plt.rcParams['mathtext.default'] = 'regular'
+
+    ax.title.set_text('Cell contour: xy space')
+    ax.plot(cell_df['x_pix'],cell_df['y_pix'],'-o',markersize=3,c='black')#black
+
+    ################
+    xminimum=cell_df['x_pix'].min()
+    xmaximum=cell_df['x_pix'].max()
+    xmid = np.median([xmaximum, xminimum])
+    xmin=xmid-XYRange/2
+    xmax=xmid+XYRange/2
+
+    yminimum=cell_df['y_pix'].min()
+    ymaximum=cell_df['y_pix'].max()
+    ymid = np.median([ymaximum, yminimum])
+    ymin=ymid-XYRange/2
+    ymax=ymid+XYRange/2
+
+    #######################
+
+    contour_list = get_cell_contours(cell_df)
+    # Draw all contours faintly as image BG
+    for i,contour in enumerate(contour_list):
+
+        rgb = np.random.rand(3,)
+        this_colour = rgb#'red' # Eventually calculate color along colormap
+        contour_arr = np.asarray(contour).T
+
+
+        if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+
+            x = cell_df['x_pix'].values[i]# - window / 2
+            y = cell_df['y_pix'].values[i]# - window / 2
+            # Cell contour relative to x,y positions
+            '''Want to double check that the x,y positions not mirrored from the contour function'''
+            ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+
+            # for transparency in np.arange(len(contour_arr))
+
+    # Draw this contour, highlighted.
+    # contour = contour_list[i_step]
+    # contour_arr = np.asarray(contour).T
+    # x = cell_df['x_pix'].values[i_step]# - window / 2
+    # y = cell_df['y_pix'].values[i_step]# - window / 2
+
+    # Cell contour relative to x,y positions
+    '''Want to double check that the x,y positions not mirrored from the contour function'''
+    if not np.isnan(np.sum(contour_arr)):
+        ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray',linewidth=5, alpha=0.2)
+
+        # Current segment
+        # if i_step > 0:
+        #     x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+        #     y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+        #     # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+        #     # ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+        #     ax.plot(x_seg,y_seg,'-o',markersize=10,c='tab:blue', linewidth=4)
+
+    text_x = xmid
+    text_y = ymid
+    # You would have to import the 'row' you got from the tavg_exemplar_df here
+
+    for n, fac in enumerate(mig_display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+
+        ax.text(text_x + 0.6*XYRange,text_y + (0.08*XYRange) + (n*(0.08*XYRange)), fac +': '+ format(row.loc[fac], '.1f'), #These weird numbers were worked out manually
+                color='tab:blue', fontsize=30,size = 36, fontdict = None)
+
+
+    for n, fac in enumerate(shape_display_factors):
+
+        ax.text(text_x + 0.6*XYRange,text_y -  (n*(0.08*XYRange)), fac +': '+ format(row.loc[fac], '.1f'),
+                color='tab:orange', fontsize=30,size = 36, fontdict = None)
+
+    # General plot improvements
+    plottitle="Cluster ID: " + str(cell_df['tavg_label'].iloc[0]) + " (condition: " + cell_df['Condition_shortlabel'].iloc[0] + ")"
+    ax.set_title(plottitle, fontname="Arial",fontsize=30)
+    ax.set_xlabel('x (px)', fontname="Arial",fontsize=30)
+    ax.set_ylabel("y (px)", fontname="Arial",fontsize=30)
+    ax.tick_params(axis='both', labelsize=30)
+    ax.set_aspect('equal')
+    ax.set_adjustable("datalim")
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+
+    if boxoff:
+        ax.axis('off')
+
+    # plt.autoscale()
+    # sns.despine(left=True)
+
+    # ax.set_yticklabels(['eNK','eNK+CytoD'])
+    return fig #delete?
+
+def plot_cell_metrics_tavg(cell_df, XYRange,boxoff, row, top_dictionary, mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS): #removed the i_step
+    '''
+    For a selected cell, at a selected step of its trajectory, make a plot
+    '''
+    # Using the same sample cell trajectory, print out some measurements
+    fig, (ax) = plt.subplots(1,1)
+
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = ['Arial'] + plt.rcParams['font.serif'] #Times New Roman
+    plt.rcParams['mathtext.default'] = 'regular'
+
+    ax.title.set_text('Cell contour: xy space')
+    ax.plot(cell_df['x_pix'],cell_df['y_pix'],'-o',markersize=3,c='black')#black
+
+    ################
+    xminimum=cell_df['x_pix'].min()
+    xmaximum=cell_df['x_pix'].max()
+    xmid = np.median([xmaximum, xminimum])
+    xmin=xmid-XYRange/2
+    xmax=xmid+XYRange/2
+
+    yminimum=cell_df['y_pix'].min()
+    ymaximum=cell_df['y_pix'].max()
+    ymid = np.median([ymaximum, yminimum])
+    ymin=ymid-XYRange/2
+    ymax=ymid+XYRange/2
+
+    #######################
+
+    contour_list = get_cell_contours(cell_df)
+    # Draw all contours faintly as image BG
+    for i,contour in enumerate(contour_list):
+
+        rgb = np.random.rand(3,)
+        this_colour = rgb#'red' # Eventually calculate color along colormap
+        contour_arr = np.asarray(contour).T
+
+
+        if not np.isnan(np.sum(contour_arr)): # If the contour is not nan
+
+            x = cell_df['x_pix'].values[i]# - window / 2
+            y = cell_df['y_pix'].values[i]# - window / 2
+            # Cell contour relative to x,y positions
+            '''Want to double check that the x,y positions not mirrored from the contour function'''
+            ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray', alpha=0.2)
+
+            # for transparency in np.arange(len(contour_arr))
+
+    # Draw this contour, highlighted.
+    # contour = contour_list[i_step]
+    # contour_arr = np.asarray(contour).T
+    # x = cell_df['x_pix'].values[i_step]# - window / 2
+    # y = cell_df['y_pix'].values[i_step]# - window / 2
+
+    # Cell contour relative to x,y positions
+    '''Want to double check that the x,y positions not mirrored from the contour function'''
+    if not np.isnan(np.sum(contour_arr)):
+        ax.plot(contour_arr[:,0],contour_arr[:,1],'-o',markersize=1,c='gray',linewidth=5, alpha=0.2)
+
+        # Current segment
+        # if i_step > 0:
+        #     x_seg = cell_df['x_pix'].values[i_step-1:i_step+1]# - window / 2
+        #     y_seg = cell_df['y_pix'].values[i_step-1:i_step+1]# - window / 2
+        #     # ax.plot(x+contour_arr[:,0],y+contour_arr[:,1],'-o',markersize=1,c='red', alpha=1)
+        #     # ax.plot(x_seg*2,y_seg*2,'-o',markersize=10,c='tab:blue', linewidth=4)
+        #     ax.plot(x_seg,y_seg,'-o',markersize=10,c='tab:blue', linewidth=4)
+
+    text_x = xmid
+    text_y = ymid
+    # You would have to import the 'row' you got from the tavg_exemplar_df here
+    # Here, you can do something with top_dictionary
+    # display(row)
+    print(row['label'])
+    ClusterID = row['label']
+    display_factors = top_dictionary[ClusterID]
+    for n, fac in enumerate(display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+
+        ax.text(text_x + 0.6*XYRange,text_y + (0.08*XYRange) + (n*(0.08*XYRange)), fac +': '+ format(row.loc[fac], '.1f'), #These weird numbers were worked out manually
+                color='tab:blue', fontsize=30,size = 36, fontdict = None)
+
+    # for n, fac in enumerate(mig_display_factors): #Positioning is currently relative to data. Can it be relative to plot?
+    #
+    #     ax.text(text_x + 0.6*XYRange,text_y + (0.08*XYRange) + (n*(0.08*XYRange)), fac +': '+ format(row.loc[fac], '.1f'), #These weird numbers were worked out manually
+    #             color='tab:blue', fontsize=30,size = 36, fontdict = None)
+    #
+    #
+    # for n, fac in enumerate(shape_display_factors):
+    #
+    #     ax.text(text_x + 0.6*XYRange,text_y -  (n*(0.08*XYRange)), fac +': '+ format(row.loc[fac], '.1f'),
+    #             color='tab:orange', fontsize=30,size = 36, fontdict = None)
+
+    # General plot improvements
+    plottitle="Cluster ID: " + str(cell_df['tavg_label'].iloc[0]) + " (condition: " + cell_df['Condition_shortlabel'].iloc[0] + ")"
+    ax.set_title(plottitle, fontname="Arial",fontsize=30)
+    ax.set_xlabel('x (px)', fontname="Arial",fontsize=30)
+    ax.set_ylabel("y (px)", fontname="Arial",fontsize=30)
+    ax.tick_params(axis='both', labelsize=30)
+    ax.set_aspect('equal')
+    ax.set_adjustable("datalim")
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+
+    if boxoff:
+        ax.axis('off')
+
+    # plt.autoscale()
+    # sns.despine(left=True)
+
+    # ax.set_yticklabels(['eNK','eNK+CytoD'])
+    return fig #delete?
 
 
 
+################################################
+
+#### New function 12-7-2022 ####
+
+def disambiguate_timepoint(df, exemps, top_dictionary, XYRange=100,boxoff=True):
+
+
+    for n in exemps.index:
+
+        row=exemps.iloc[n] #extract an example exemplar row
+
+        # Use exemplar row to look up the corresponding cell TRACK from the cell_df
+        cell_df = df[(df['Condition']==row['Condition']) &
+                        (df['Replicate_ID']==row['Replicate_ID']) &
+                        (df['particle']==row['particle'])]
+        cell_df = cell_df.reset_index(drop=True)
+
+        # This looks up the exemplar point, based on all of these metrics, so that the correct exemplar point is displayed in the visualization
+        exemplarpoint = cell_df.index[(cell_df['area']==row['area']) &
+                        (cell_df['speed']==row['speed']) &
+                        (cell_df['frame']==row['frame']) &
+                        (cell_df['label']==row['label'])]
+        ClusterID = row['label']
+        # f=cp.plot_cell_metrics(cell_df, exemplarpoint[0]) #mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS
+        f=plot_cell_metrics_timepoint(cell_df, exemplarpoint[0], XYRange, boxoff, top_dictionary, ClusterID) #mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS
+        print("Saving to" + CLUST_DISAMBIG_DIR + '\Disambiguated_ClusterID_'+str(ClusterID)+'_'+str(n))
+        f.savefig( CLUST_DISAMBIG_DIR + '\ClusterID__'+str(ClusterID)+'__disambiguated__R'+str(XYRange)+'_'+str(n)  ,dpi=300,bbox_inches="tight")
+
+    return
+
+def disambiguate_wholetrack_DEPRECATED(df, exemp_df, XYRange=100,boxoff=True): #separate function for disambiguating the tavg clusters
+
+    # This part extracts the whole cell tracks (from df) represented by single exemplars (from exemp_df)
+    wholetrack_exemplararray=np.ones(len(df.axes[1])) # Makes a first row of ones to initialize the array
+
+    for n in exemp_df.index:
+        row=exemp_df.iloc[n] #extract an example exemplar row
+        # Use exemplar row to look up the corresponding cell TRACK from the cell_df
+        cell_df = df[(df['Condition']==row['Condition']) &
+                        (df['Replicate_ID']==row['Replicate_ID']) &
+                        (df['particle']==row['particle']) &
+                        (df['ntpts']==row['ntpts'])]
+        print('Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +
+              '. Cell_df track length = ' + str(len(cell_df['ntpts'])) + ' and ntpts from tavg_exemplar_df = ' + str(row['ntpts']))
+        cell_array = cell_df.to_numpy()
+        wholetrack_exemplararray=np.vstack((wholetrack_exemplararray, cell_array))
+
+        # top_dictionary=contribution_to_clusters_topdictionary(df_in=df)
+
+        f=plot_cell_metrics_wholetrack_DEPRECATED(cell_df, XYRange, boxoff, row) #mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS
+
+        print("Saving to" + CLUST_DISAMBIG_DIR_WHOLETRACK + '\Disambiguated_WHOLETRACK_Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +'__disambiguated__R'+str(XYRange)+'_'+str(n))
+
+        f.savefig( CLUST_DISAMBIG_DIR_WHOLETRACK + '\WHOLETRACK_Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +'__disambiguated__R'+str(XYRange)+'_'+str(n)+'.png'  ,dpi=300,bbox_inches="tight")
+
+
+
+    wholetrack_exemplararray=np.delete(wholetrack_exemplararray, obj=0, axis=0) # delete the initialization row of ones
+    colsare=df.columns.tolist()
+    wholetrack_exemplar_df = pd.DataFrame(wholetrack_exemplararray, columns=colsare)
+
+
+
+    return(wholetrack_exemplar_df)
+
+def disambiguate_tavg(df, exemp_df, top_dictionary, XYRange=100,boxoff=True): #separate function for disambiguating the tavg clusters
+
+    # This part extracts the whole cell tracks (from df) represented by single exemplars (from exemp_df)
+    wholetrack_exemplararray=np.ones(len(df.axes[1])) # Makes a first row of ones to initialize the array
+
+    for n in exemp_df.index:
+        row=exemp_df.iloc[n] #extract an example exemplar row
+        # Use exemplar row to look up the corresponding cell TRACK from the cell_df
+        cell_df = df[(df['Condition']==row['Condition']) &
+                        (df['Replicate_ID']==row['Replicate_ID']) &
+                        (df['particle']==row['particle']) &
+                        (df['ntpts']==row['ntpts'])]
+        print('Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +
+              '. Cell_df track length = ' + str(len(cell_df['ntpts'])) + ' and ntpts from tavg_exemplar_df = ' + str(row['ntpts']))
+        cell_array = cell_df.to_numpy()
+        wholetrack_exemplararray=np.vstack((wholetrack_exemplararray, cell_array))
+
+
+        # print(top_dictionary)
+        f=plot_cell_metrics_tavg(cell_df, XYRange, boxoff, row, top_dictionary) #mig_display_factors=MIG_DISPLAY_FACTORS,shape_display_factors=SHAPE_DISPLAY_FACTORS
+
+        print("Saving to" + CLUST_DISAMBIG_DIR_WHOLETRACK + '\Disambiguated_WHOLETRACK_Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +'__disambiguated__R'+str(XYRange)+'_'+str(n))
+
+        f.savefig( CLUST_DISAMBIG_DIR_WHOLETRACK + '\WHOLETRACK_Condition = ' + str(cell_df['Condition_shortlabel'].iloc[0]) +
+              '. TAVG_Cluster ID = ' + str(cell_df['tavg_label'].iloc[0]) +'__disambiguated__R'+str(XYRange)+'_'+str(n)+'.png'  ,dpi=300,bbox_inches="tight")
+
+
+
+    wholetrack_exemplararray=np.delete(wholetrack_exemplararray, obj=0, axis=0) # delete the initialization row of ones
+    colsare=df.columns.tolist()
+    wholetrack_exemplar_df = pd.DataFrame(wholetrack_exemplararray, columns=colsare)
+
+
+
+    return(wholetrack_exemplar_df)
+
+def clustering_heatmap(df_in, dr_factors=DR_FACTORS): #New function 12-14-2022
+
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.preprocessing import MinMaxScaler
+
+    fig, ax = plt.subplots(figsize=(24,20))
+
+    df_in_labels=df_in['label']
+    CLUSTERON=dr_factors #what columns you want included in the heatmap?
+
+    sub_set = df_in[CLUSTERON] #makes a subset_df of just the measurements (no DR, no labels)
+
+    Z = StandardScaler().fit_transform(sub_set)
+    X = MinMaxScaler().fit_transform(Z)
+    sub_set_scaled_df=pd.DataFrame(data=X, columns = CLUSTERON)
+    lab_sub_set_scaled_df = pd.concat([sub_set_scaled_df,df_in_labels], axis=1)
+
+    lab_sub_set_scaled_df.set_index("label", inplace = True)
+    lab_sub_set_scaled_df.sort_index(ascending=True, inplace=True)
+
+    sns.heatmap(lab_sub_set_scaled_df,vmin=0, vmax=1,fmt='.2g',ax=ax, cmap='crest') #center=0.5 #, square=True
+    ax.invert_yaxis()
+    ax.set_ylabel("Cluster", fontsize=24)
+    ax.tick_params(axis='both', labelsize=24)
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=24)
+
+    fig.savefig( CLUST_DISAMBIG_DIR + '\heatmap_disambiguation',dpi=600,bbox_inches="tight")
+
+    return
+
+def correlation_matrix_heatmap(df_in, factors = ALL_FACTORS): #Function added new 12-14-2022
+
+    cmap = 'crest'
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.preprocessing import MinMaxScaler
+
+    # df_in_labels=df_in['label']
+    # CLUSTERON=factors #what columns you want included in the heatmap?
+    sub_set = df_in[factors] #makes a subset_df of just the measurements (no DR, no labels)
+    Z = StandardScaler().fit_transform(sub_set)
+    X = MinMaxScaler().fit_transform(Z)
+    sub_set_scaled_df=pd.DataFrame(data=X, columns = factors)
+    # print(sub_set_scaled_df)
+    # lab_sub_set_scaled_df = pd.concat([sub_set_scaled_df,df_in_labels], axis=1)
+    #Correlation matrix
+    corr = sub_set_scaled_df.corr('pearson') # 'pearson','kendall','spearman' ‘spearman’
+    #Figure set up
+    f, ax = plt.subplots(figsize=(24, 20))
+    #Make mask to remove duplicates
+    mask = np.triu(np.ones_like(corr, dtype=bool))
+    # Heatmap
+    sns.heatmap(corr, mask=mask, cmap=cmap, ax=ax)
+    #Plot settings
+    ax.set_ylabel("", fontsize=24)
+    ax.tick_params(axis='both', labelsize=24)
+    cbar = ax.collections[0].colorbar
+    cbar.ax.tick_params(labelsize=24)
+    b, t = plt.ylim() # discover the values for bottom and top
+    b += 0.5 # Add 0.5 to the bottom
+    t -= 0.5 # Subtract 0.5 from the top
+    plt.ylim(b,t)
+    g, a = plt.xlim()
+    # plt.show()
+    f.savefig( CLUST_DISAMBIG_DIR + '\correlation_matrix',dpi=300,bbox_inches="tight")
+    return
+
+def contribution_to_clusters(df_in, threshold_value=0.0001, dr_factors=DR_FACTORS): #New function 21-14-2022
+
+    ### 12-12-2022 ##### DEV THIS ONE
+
+    # Part 1: take the metrics and center scales them, then puts them back into a DF
+    # Part 2: Find the median value per cluster for each metric using groupby
+    # Part 3: Makes some iterables for the parts below.
+    # Part 4: Makes a Variance DF that describes the variance of each metric BETWEEN CLUSTERS
+    # Part 5: Makes a boolean mask of variances based on that threshold value, and a dataframe that contains values if true, and NaN if not
+    # Part 6: Prints the names of the important values per cluster. TBH, printing the df might be better.
+    # Part 7: print a boolean_df?
+    # Part 8: exports a df that can be used to select what metrics you want to show?
+
+    # from sklearn.feature_selection import VarianceThreshold
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.preprocessing import StandardScaler
+
+    # df_in = tptlabel_dr_df
+    # threshold_value = 0.0001
+    CLUSTERON = dr_factors
+
+    # Part 1: take the metrics and center scales them, then puts them back into a DF
+    sub_set = df_in[CLUSTERON]
+    X = MinMaxScaler().fit_transform(sub_set)
+    thelabels = df_in['label']
+    scaled_df_in = pd.DataFrame(data=X, columns = CLUSTERON)
+    df_out = pd.concat([scaled_df_in,thelabels], axis=1)#Put this back into a DF, with the col names and labels.
+    # df_out
+
+    # Part 2: Find the median value per cluster for each metric using groupby
+    clusteraverage_df = df_out.groupby('label').median()#.reset_index(drop=True)
+
+    # Part 3: Makes some iterables for the parts below.
+    numberofclusters=len(clusteraverage_df.axes[0])
+    iterable_clusters=np.arange(len(clusteraverage_df.axes[0])) # Iterable across rows
+    iterable_metrics=np.arange(len(clusteraverage_df.axes[1])) # Iterable across columns (metrics)
+    metric_means = clusteraverage_df.mean(axis=0).tolist()
+
+    # Part 4: Makes a Variance DF that describes the variance of each metric BETWEEN CLUSTERS
+    variance_between_clusters=[]
+    variance_between_clusters_array = []
+    variance_between_clusters_array_total=[]
+
+    ###############################################################################
+    # Calculates the variance of each value compared to the other values (discounting current value in calculation of mean) ((x - mean)^2)/numberofvalues
+    for metric in iterable_metrics:
+        # print(metric)
+        variance_between_clusters_array=[]
+        for cluster in iterable_clusters:
+            list1 = clusteraverage_df.iloc[cluster,metric]
+            list2=clusteraverage_df.iloc[:,metric].tolist()
+            list2.remove(list1)
+            meanminusthatvalue=np.mean(list2)
+            variance_between_clusters = ((clusteraverage_df.iloc[cluster,metric] - meanminusthatvalue)**2)/(numberofclusters)
+            variance_between_clusters_array.append(variance_between_clusters)
+        variance_between_clusters_array_total.append(variance_between_clusters_array)
+    variance_df = pd.DataFrame(data = variance_between_clusters_array_total, columns = clusteraverage_df.index, index = CLUSTERON )
+    display(variance_df)
+    ###############################################################################
+    # # OLD WAY - CONSIDERS ALL THE VALUES FOR CALCULATING THE MEAN
+
+    # for metric in iterable_metrics:
+    #     # print(metric)
+    #     variance_between_clusters_array=[]
+    #     for cluster in iterable_clusters:
+    #         variance_between_clusters = ((clusteraverage_df.iloc[cluster,metric] - metric_means[metric])**2)/(numberofclusters)
+    #         variance_between_clusters_array.append(variance_between_clusters)
+    #     variance_between_clusters_array_total.append(variance_between_clusters_array)
+    # variance_df = pd.DataFrame(data = variance_between_clusters_array_total, columns = clusteraverage_df.index, index = CLUSTERON )
+    #############################################################################
+
+    # Part 5: Makes a boolean mask of variances based on that threshold value, and a dataframe that contains values if true, and NaN if not
+    high_mask = variance_df > threshold_value
+    trueones=variance_df[high_mask]
+    # display(high_mask)
+
+    # Part 6: Prints the names of the important values per cluster. TBH, printing the df might be better.
+    for clusterlabel in iterable_clusters:
+        clusteryeah=trueones.iloc[:,clusterlabel]
+        clusterboolean=clusteryeah.notnull()
+
+        highmetrics=clusteryeah[clusterboolean]
+        clusternames=trueones.columns.tolist()
+        print("Cluster " + str(clusternames[clusterlabel]) + " has the following main contributors: " + str(highmetrics.index.tolist()))
+
+    # Part 7: print a boolean_df?
+
+    # Part 8: exports a df that can be used to select what metrics you want to show?
+    return(variance_df)
+
+def contribution_to_clusters_topdictionary(df_in, threshold_value=0.0001, dr_factors=DR_FACTORS, howmanyfactors=6): #New function 21-14-2022
+
+    ### 12-12-2022 ##### DEV THIS ONE
+
+    # Part 1: take the metrics and center scales them, then puts them back into a DF
+    # Part 2: Find the median value per cluster for each metric using groupby
+    # Part 3: Makes some iterables for the parts below.
+    # Part 4: Makes a Variance DF that describes the variance of each metric BETWEEN CLUSTERS
+    # Part 5: Makes a boolean mask of variances based on that threshold value, and a dataframe that contains values if true, and NaN if not
+    # Part 6: Prints the names of the important values per cluster. TBH, printing the df might be better.
+    # Part 7: print a boolean_df?
+    # Part 8: exports a df that can be used to select what metrics you want to show?
+
+    # from sklearn.feature_selection import VarianceThreshold
+    from sklearn.preprocessing import MinMaxScaler
+    from sklearn.preprocessing import StandardScaler
+
+    # df_in = tptlabel_dr_df
+    # threshold_value = 0.0001
+    CLUSTERON = dr_factors
+
+    # Part 1: take the metrics and center scales them, then puts them back into a DF
+    sub_set = df_in[CLUSTERON]
+    X = MinMaxScaler().fit_transform(sub_set)
+    thelabels = df_in['label']
+    scaled_df_in = pd.DataFrame(data=X, columns = CLUSTERON)
+    df_out = pd.concat([scaled_df_in,thelabels], axis=1)#Put this back into a DF, with the col names and labels.
+    # df_out
+
+    # Part 2: Find the median value per cluster for each metric using groupby
+    clusteraverage_df = df_out.groupby('label').median()#.reset_index(drop=True)
+
+    # Part 3: Makes some iterables for the parts below.
+    numberofclusters=len(clusteraverage_df.axes[0])
+    iterable_clusters=np.arange(len(clusteraverage_df.axes[0])) # Iterable across rows
+    iterable_metrics=np.arange(len(clusteraverage_df.axes[1])) # Iterable across columns (metrics)
+    metric_means = clusteraverage_df.mean(axis=0).tolist()
+
+    # Part 4: Makes a Variance DF that describes the variance of each metric BETWEEN CLUSTERS
+    variance_between_clusters=[]
+    variance_between_clusters_array = []
+    variance_between_clusters_array_total=[]
+
+    ###############################################################################
+    # Calculates the variance of each value compared to the other values (discounting current value in calculation of mean) ((x - mean)^2)/numberofvalues
+    for metric in iterable_metrics:
+        # print(metric)
+        variance_between_clusters_array=[]
+        for cluster in iterable_clusters:
+            list1 = clusteraverage_df.iloc[cluster,metric]
+            list2=clusteraverage_df.iloc[:,metric].tolist()
+            list2.remove(list1)
+            meanminusthatvalue=np.mean(list2)
+            variance_between_clusters = ((clusteraverage_df.iloc[cluster,metric] - meanminusthatvalue)**2)/(numberofclusters)
+            variance_between_clusters_array.append(variance_between_clusters)
+        variance_between_clusters_array_total.append(variance_between_clusters_array)
+    variance_df = pd.DataFrame(data = variance_between_clusters_array_total, columns = clusteraverage_df.index, index = CLUSTERON )
+    # display(variance_df)
+
+
+    ##########
+    trans_variance_df=variance_df.T
+    df= trans_variance_df
+
+    topfactors = []
+    contributors=[]
+
+    for ind in df.index:
+        col=trans_variance_df.loc[ind,:] #using loc as the index is label.
+        sortedcol=col.sort_values(ascending=False)
+        # thename=sortedcol.name
+        #Select top 4 of these
+        contributors=(sortedcol[0:howmanyfactors]).index.tolist()
+        # contributors.insert(0, thename)
+        topfactors.append(contributors)
+
+    #Make a dictionary of these results
+
+    top_dictionary = {}
+    keys = df.index.tolist()
+    for i in keys:
+        top_dictionary[i] = topfactors[i]
+
+    ###############################################################################
+    # # OLD WAY - CONSIDERS ALL THE VALUES FOR CALCULATING THE MEAN
+
+    # for metric in iterable_metrics:
+    #     # print(metric)
+    #     variance_between_clusters_array=[]
+    #     for cluster in iterable_clusters:
+    #         variance_between_clusters = ((clusteraverage_df.iloc[cluster,metric] - metric_means[metric])**2)/(numberofclusters)
+    #         variance_between_clusters_array.append(variance_between_clusters)
+    #     variance_between_clusters_array_total.append(variance_between_clusters_array)
+    # variance_df = pd.DataFrame(data = variance_between_clusters_array_total, columns = clusteraverage_df.index, index = CLUSTERON )
+    #############################################################################
+
+    # Part 5: Makes a boolean mask of variances based on that threshold value, and a dataframe that contains values if true, and NaN if not
+    high_mask = variance_df > threshold_value
+    trueones=variance_df[high_mask]
+    # display(high_mask)
+
+    # Part 6: Prints the names of the important values per cluster. TBH, printing the df might be better.
+    for clusterlabel in iterable_clusters:
+        clusteryeah=trueones.iloc[:,clusterlabel]
+        clusterboolean=clusteryeah.notnull()
+
+        highmetrics=clusteryeah[clusterboolean]
+        clusternames=trueones.columns.tolist()
+        # print("Cluster " + str(clusternames[clusterlabel]) + " has the following main contributors: " + str(highmetrics.index.tolist()))
+
+    # Part 7: print a boolean_df?
+
+    # Part 8: exports a df that can be used to select what metrics you want to show?
+    return(top_dictionary)
+
+
+
+#####
 def plot_cell_trajectories(cell_df, dr_df, dr_method='tSNE',contour_scale=1,cmap_by=None):#'area'):
 
     '''

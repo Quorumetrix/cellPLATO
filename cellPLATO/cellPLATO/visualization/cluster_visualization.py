@@ -307,7 +307,192 @@ def draw_cluster_hulls(df_in, cluster_by=CLUSTER_BY, min_pts=5, color_by='cluste
 
     return ax
 
+def plot_3D_UMAP(df, colorby = 'label', symbolby = 'Condition_shortlabel', what = ''):
 
+    import plotly.io as pio
+    import seaborn as sns
+
+    CLUSTER_CMAP = 'tab20'
+    CONDITION_CMAP = 'dark'
+
+    # CLUST_DISAMBIG_DIR = 'D:/Michael_Shannon/CELLPLATO_MASTER/OCTOBERTESTING_/ThreeConditions_Go_Stopping_Stopped_FinalFig1_OUTPUT/ThreeConditions_Go_Stopping_Stopped_12-14-2022/2022-12-15_10-23-41-828185/plots/Clustering/Cluster_Disambiguation'
+
+    # df = lab_dr_df #lab_tavg_dr_df #lab_dr_df
+
+    pal = sns.color_palette(CONDITION_CMAP) #extracts a colormap from the seaborn stuff.
+    cmap=pal.as_hex()[:] #outputs that as a hexmap which is compatible with plotlyexpress below
+
+    if 'label' in df.columns:
+        df['label'] = pd.Categorical(df.label)
+
+
+    import plotly.express as px
+    # df = px.data.iris()
+    fig = px.scatter_3d(df, x='UMAP1', y='UMAP2', z='UMAP3',
+                  color=colorby, #Condition_shortlabel
+                        symbol=symbolby,
+                        size_max=1, opacity=0.7,width=1800, height=1200, color_discrete_sequence=cmap) # 1) Increase fontsize of labels
+
+    fig.update_traces(marker_size = 2)#2
+    fig.update_layout(margin=dict(l=20, r=20, t=20, b=20),legend_font_size=24)
+    # fig.update_layout(legend=dict(title_font_family="Times New Roman", font=dict(size= 20)) )
+
+    fig.update_layout(font=dict(family="Courier New, monospace",size=24)) #Courier New, monospace
+    fig.update_layout(legend= {'itemsizing': 'constant'})
+
+    # "Arial", "Balto", "Courier New", "Droid Sans",, "Droid Serif", "Droid Sans Mono", "Gravitas One", "Old Standard TT", "Open Sans", "Overpass", "PT Sans Narrow", "Raleway", "Times New Roman".
+
+    pio.write_image(fig, CLUST_DISAMBIG_DIR + what + ' UMAP_Clusters.png',scale=1, width=1800, height=1200)
+    fig.show()
+    return
+
+def plot_plasticity_changes(df, identifier='\_allcells'):
+
+    # f, axes = plt.subplots(1, 3, figsize=(15, 5)) #sharex=True
+    # f, axes = plt.subplots(3, 1, figsize=(15, 30), sharex=True) #sharex=True
+    f, axes = plt.subplots(3, 1, figsize=(15, 30), sharex=False) #sharex=True
+
+    whattoplot=['label','twind_n_changes', 'twind_n_labels']
+
+    CLUSTER_CMAP = 'tab20'
+    CONDITION_CMAP = 'dark'
+
+    time = df['frame']
+    # SAMPLING_INTERVAL=10/60 #This shouldn't be hardcoded!
+    timeminutes=time*SAMPLING_INTERVAL
+
+    # dfnumericals = df.select_dtypes('number')
+
+    # extracted_col = df["Condition_shortlabel"]
+
+    # df=dfnumericals.join(extracted_col)
+
+    import seaborn as sns
+    sns.set_theme(style="ticks")
+    sns.set_palette(CONDITION_CMAP)
+    # display(df)
+    df=df.dropna(how='any')
+    # display(df)
+    # Plot the responses for different events and regions
+    sns.lineplot(ax=axes[0], x=timeminutes, y=whattoplot[0], #n_labels #n_changes #label
+                 hue="Condition_shortlabel",
+                 data=df)
+
+    sns.lineplot(ax=axes[1], x=timeminutes, y=whattoplot[1], #n_labels #n_changes #label
+                 hue="Condition_shortlabel",
+                 data=df)
+
+    sns.lineplot(ax=axes[2], x=timeminutes, y=whattoplot[2], #n_labels #n_changes #label
+                 hue="Condition_shortlabel",
+                 data=df)
+
+    timewindowmins = MIG_T_WIND*SAMPLING_INTERVAL
+    text1 = "Cluster ID per frame"
+    text2 = "Distinct changes per " + str(timewindowmins) + " min time window"
+    text3 = "New cluster changes per " + str(timewindowmins) + " min time window"
+
+    x_lab = "Distinct Behaviors"
+    plottitle = ""
+    # Tweak the visual presentation
+    axes[0].xaxis.grid(True)
+    axes[1].xaxis.grid(True)
+    axes[2].xaxis.grid(True)
+
+    # axes[0].set_ylabel(whattoplot[0], fontsize=36)
+    # axes[1].set_ylabel(whattoplot[1], fontsize=36)
+    # axes[2].set_ylabel(whattoplot[2], fontsize=36)
+    axes[0].set_ylabel(text1, fontsize=36)
+    axes[1].set_ylabel(text2, fontsize=36)
+    axes[2].set_ylabel(text3, fontsize=36)
+
+    axes[0].set_title("", fontsize=36)
+    axes[1].set_title("", fontsize=36)
+    axes[2].set_title("", fontsize=36)
+
+    axes[0].set_xlabel("Time (min)", fontsize=36)
+    axes[1].set_xlabel("Time (min)", fontsize=36)
+    axes[2].set_xlabel("Time (min)", fontsize=36)
+
+    axes[0].set_ylim(0, np.nanmax(df[whattoplot[0]]))
+    axes[1].set_ylim(0, np.nanmax(df[whattoplot[1]]))
+    axes[2].set_ylim(0, np.nanmax(df[whattoplot[2]]))
+
+    # ax.set_ylabel(y_lab, fontsize=36)
+    axes[0].tick_params(axis='both', labelsize=36)
+    axes[1].tick_params(axis='both', labelsize=36)
+    axes[2].tick_params(axis='both', labelsize=36)
+
+    axes[0].legend(title='', bbox_to_anchor=(1, 1.02), loc='upper left',fontsize=36,markerscale=20,fancybox=True)
+    axes[1].legend(title='', bbox_to_anchor=(1, 1.02), loc='upper left',fontsize=36,markerscale=20,fancybox=True)
+    axes[2].legend(title='', bbox_to_anchor=(1, 1.02), loc='upper left',fontsize=36,markerscale=20,fancybox=True)
+
+    f.tight_layout()
+    # fig.write_image(CLUST_DISAMBIG_DIR+'\cluster_label_counts.png')
+    f.savefig(CLUST_DISAMBIG_DIR+identifier+'_plasticity_cluster_changes_over_time.png', dpi=300)#plt.
+
+    return
+
+def plot_plasticity_countplots(df, identifier='\_allcells'):
+
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    # f, axes = plt.subplots(1, 2, figsize=(30, 15), sharey=True)
+    f, axes = plt.subplots(1, 2, figsize=(30, 8), sharey=False)
+    # f, axes = plt.subplots(2, 1, figsize=(15, 30), sharey=False)
+    # ax.set_xscale("log")
+
+    # whattoplot=['n_changes', 'n_labels'] #'twind_n_changes', 'twind_n_labels'
+    whattoplot=['twind_n_changes', 'twind_n_labels']
+    CLUSTER_CMAP = 'tab20'
+    CONDITION_CMAP = 'dark'
+
+    sns.set_theme(style="ticks")
+    sns.set_palette(CONDITION_CMAP)
+
+
+    x_lab = whattoplot
+    plottitle = ""
+    # Plot the orbital period with horizontal boxes
+    sns.countplot(x=whattoplot[0], hue="Condition_shortlabel", data=df, ax=axes[0], orient='h')
+    sns.countplot(x=whattoplot[1], hue="Condition_shortlabel", data=df, ax=axes[1], orient='h')
+    ######
+    # sns.boxplot(ax=axes[0], x=whattoplot[0], y="Condition", data=df,
+    #             whis=[0, 100], width=.6)#palette="vlag"
+    # # Add in points to show each observation
+    # sns.stripplot(ax=axes[0], x=whattoplot[0], y="Condition", data=df,
+    #               size=5, color=".3", linewidth=0, jitter=True)
+    #
+    # sns.boxplot(ax=axes[1], x=whattoplot[1], y="Condition", data=df,
+    #             whis=[0, 100], width=.6)#palette="vlag"
+    # # Add in points to show each observation
+    # sns.stripplot(ax=axes[1], x=whattoplot[1], y="Condition", data=df,
+    #               size=5, color=".3", linewidth=0, jitter=True) #color=".3",
+    #########
+    timewindowmins = MIG_T_WIND*SAMPLING_INTERVAL
+    text1 = "Distinct changes per " + str(int(timewindowmins)) + " min time window"
+    text2 = "New cluster changes per " + str(int(timewindowmins)) + " min time window"
+
+    axes[0].xaxis.grid(True)
+    axes[1].xaxis.grid(True)
+    axes[0].set_ylabel("Frequency",fontsize=36)
+    axes[1].set_ylabel("Frequency",fontsize=36)
+    # axes[0].set_xlabel(whattoplot[0], fontsize=36)
+    # axes[1].set_xlabel(whattoplot[1], fontsize=36)
+    axes[0].set_xlabel(text1, fontsize=36)
+    axes[1].set_xlabel(text2, fontsize=36)
+    axes[0].set_title("", fontsize=36)
+    axes[1].set_title("", fontsize=36)
+    axes[0].tick_params(axis='both', labelsize=36)
+    axes[1].tick_params(axis='both', labelsize=36)
+
+    axes[0].legend(title='', bbox_to_anchor=(1, 1.02), loc='upper right',fontsize=36,markerscale=20,fancybox=True)
+    axes[1].legend(title='', bbox_to_anchor=(1, 1.02), loc='upper right',fontsize=36,markerscale=20,fancybox=True)
+
+    f.tight_layout()
+    # fig.write_image(CLUST_DISAMBIG_DIR+'\cluster_label_counts.png')
+    f.savefig(CLUST_DISAMBIG_DIR+identifier+'plasticity_sum_of_cluster_changes.png', dpi=300)#plt.
+    return
 
 
 def purity_plots(lab_dr_df, clust_sum_df,traj_clust_df,trajclust_sum_df,cluster_by=CLUSTER_BY, save_path=CLUST_DIR ):

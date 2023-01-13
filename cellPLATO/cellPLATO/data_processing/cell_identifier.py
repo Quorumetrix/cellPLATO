@@ -120,25 +120,4 @@ def get_cell_id(cell_df):
 
 
 
-def get_cell_df_list(df,length_threshold=10):
-
-
-    # Get a procssed std_df that can be used to extract individual cell_df
-    std_df = get_cell_mean_variance(df,'area')
-    std_df.sort_index(ascending=True, inplace=True)
-
-    # Not sureyet which list I'll use, so make both for now.
-    cell_df_list = []
-
-    # Create a list of the dataframes of trajectories longer than a threshold number of points
-    for i, row in std_df.iterrows():
-        cell_df = get_specific_cell(std_df, df,i)
-
-        # Wont be continuous because some wioll be skipped being added to list
-        # cell_df['unique_id'] = i
-
-        if len(cell_df) > length_threshold:
-
-            cell_df_list.append(cell_df)
-
-    return cell_df_list
+0
